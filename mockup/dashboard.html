@@ -1,0 +1,790 @@
+<title>Pra-Launch — Dasbor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+
+<style>
+/* ============================================================
+   PRA-LAUNCH — Dasbor. Mockup statis, data dummy.
+   Token & komponen diwarisi dari mockup/dashboard.html (ARUS)
+   supaya dua app terasa satu keluarga.
+   Yang baru di sini cuma .tsk (baris task) dan .wk (progres minggu).
+   ============================================================ */
+
+:root{
+  --ink:#37352F;
+  --ink-strong:#1F1E1B;
+  --paper:#FFFFFF;
+  --sunken:#F7F7F5;
+  --hover:#F1F1EF;
+  --rule:#E9E9E7;
+  --rule-strong:#DAD9D6;
+  --muted:#787774;
+  --faint:#9B9A97;
+
+  --accent:#2383E2;
+  --accent-soft:#E7F3F8;
+
+  --in:#0F7B6C;      --in-soft:#EDF3EC;
+  --out:#D9730D;     --out-soft:#FAEBDD;
+  --alert:#D44C47;   --alert-soft:#FBE4E4;
+
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans:"Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --r:4px;
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#D4D4D4;  --ink-strong:#EDEDED;
+    --paper:#191919; --sunken:#202020; --hover:#2C2C2C;
+    --rule:#2F2F2F;  --rule-strong:#454545;
+    --muted:#9B9B9B; --faint:#7E7E7E;
+    --accent:#529CCA; --accent-soft:#1E2C34;
+    --in:#4DAB9A;    --in-soft:#242B2A;
+    --out:#FFA344;   --out-soft:#33281D;
+    --alert:#FF7369; --alert-soft:#332423;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#D4D4D4;  --ink-strong:#EDEDED;
+  --paper:#191919; --sunken:#202020; --hover:#2C2C2C;
+  --rule:#2F2F2F;  --rule-strong:#454545;
+  --muted:#9B9B9B; --faint:#7E7E7E;
+  --accent:#529CCA; --accent-soft:#1E2C34;
+  --in:#4DAB9A;    --in-soft:#242B2A;
+  --out:#FFA344;   --out-soft:#33281D;
+  --alert:#FF7369; --alert-soft:#332423;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:14px;
+  line-height:1.5;
+  font-feature-settings:"tnum" 1;
+  -webkit-font-smoothing:antialiased;
+}
+
+.num{font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:-0.01em}
+
+/* ------------------------------------------------ review toolbar ---- */
+.viewsel{
+  position:sticky; top:0; z-index:40;
+  display:flex; align-items:center; gap:6px;
+  padding:6px 12px;
+  background:var(--sunken);
+  border-bottom:1px solid var(--rule);
+  font-size:12px;
+}
+.viewsel .k{color:var(--faint); margin-right:4px}
+.viewsel button{
+  font:inherit; font-size:12px; font-weight:500;
+  color:var(--muted); background:transparent;
+  border:none; border-radius:var(--r);
+  padding:3px 9px; cursor:pointer;
+}
+.viewsel button:hover{background:var(--hover); color:var(--ink)}
+.viewsel button[aria-pressed="true"]{background:var(--paper); color:var(--ink); box-shadow:0 0 0 1px var(--rule-strong)}
+.viewsel button:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+.viewsel .note{
+  margin-left:auto; color:var(--faint);
+  min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+@media (max-width:719px){ .viewsel .note{display:none} }
+
+/* --------------------------------------------------------- shell ---- */
+.app{min-height:100vh; padding-bottom:96px; background:var(--paper)}
+
+.crumbs{
+  position:sticky; top:29px; z-index:30;
+  display:flex; align-items:center; gap:6px;
+  height:45px; padding:0 14px;
+  background:var(--paper);
+  border-bottom:1px solid var(--rule);
+  font-size:13px; color:var(--muted);
+}
+.crumbs .sep{color:var(--rule-strong)}
+.crumbs .here{color:var(--ink); font-weight:500}
+.crumbs .date{margin-left:auto; font-family:var(--mono); font-size:12px; color:var(--faint)}
+.iconbtn{
+  width:26px; height:26px; display:grid; place-items:center;
+  background:transparent; border:none; border-radius:var(--r);
+  color:var(--muted); cursor:pointer;
+}
+.iconbtn:hover{background:var(--hover); color:var(--ink)}
+.iconbtn:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+
+.pagehead{padding:24px 14px 4px}
+.pagehead h1{
+  margin:0; font-size:28px; font-weight:700; letter-spacing:-0.02em;
+  color:var(--ink-strong); text-wrap:balance;
+}
+.pagehead .sub{margin-top:5px; font-size:13.5px; color:var(--muted)}
+
+/* --------------------------------------------------- section blok --- */
+.wrap{padding:0 14px}
+.sec{padding:22px 0 4px}
+.sec + .sec{border-top:1px solid var(--rule)}
+.sec__head{display:flex; align-items:center; gap:8px; margin-bottom:12px}
+.sec__head h2{
+  margin:0; font-size:14px; font-weight:600; color:var(--ink-strong); letter-spacing:-0.005em;
+}
+.count{
+  font-size:12px; color:var(--faint);
+  background:var(--sunken); border-radius:3px; padding:1px 6px;
+}
+.count--accent{color:var(--accent); background:var(--accent-soft)}
+.count--alert{color:var(--alert); background:var(--alert-soft); font-weight:500}
+.sec__note{margin-left:auto; font-size:12px; color:var(--faint)}
+
+/* ------------------------------------------------------ countdown --- */
+.hero{
+  font-family:var(--mono); font-weight:500;
+  font-size:38px; line-height:1.05; letter-spacing:-0.03em; color:var(--ink-strong);
+}
+.hero .u{font-size:16px; font-weight:400; color:var(--faint); margin-left:7px; letter-spacing:0}
+.herorow{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.pill{
+  font-family:var(--mono); font-size:12px; font-weight:500;
+  padding:2px 7px; border-radius:3px;
+}
+.pill--in{color:var(--in); background:var(--in-soft)}
+.pill--out{color:var(--out); background:var(--out-soft)}
+.pill--alert{color:var(--alert); background:var(--alert-soft)}
+.herosub{margin-top:6px; font-size:13px; color:var(--muted)}
+
+.meter{height:7px; background:var(--sunken); border-radius:99px; overflow:hidden}
+.meter i{display:block; height:100%; background:var(--accent); border-radius:99px}
+.meter--q i{background:var(--rule-strong)}
+
+.progline{display:flex; align-items:baseline; gap:10px; margin-top:6px}
+.progline .v{font-family:var(--mono); font-size:13.5px; font-weight:500; color:var(--ink)}
+.progline .s{font-size:12.5px; color:var(--faint)}
+
+/* callout ala Notion */
+.callout{
+  display:flex; gap:10px; align-items:flex-start;
+  margin-top:14px; padding:12px 14px;
+  background:var(--sunken); border-radius:var(--r);
+  font-size:13px; color:var(--muted); line-height:1.55;
+}
+.callout .ic{
+  flex:none; width:18px; height:18px; margin-top:1px;
+  display:grid; place-items:center; font-size:12px; color:var(--faint);
+  font-family:var(--mono);
+}
+.callout b{font-family:var(--mono); font-weight:500; color:var(--ink)}
+.callout--info{background:var(--accent-soft)}
+.callout--info .ic{color:var(--accent)}
+
+/* ==================================================== BARIS TASK ==== */
+/* Status dibedakan lewat WARNA + BOBOT TEKS, bukan ikon ramai.
+   Garis kiri 3px dipakai ulang dari .row milik ARUS. */
+.tsks{margin:0 -8px}
+.tsk{
+  display:grid; grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:baseline; gap:11px;
+  padding:10px 8px 10px 11px;
+  border-radius:var(--r);
+  border-left:3px solid transparent;
+}
+.tsk:hover{background:var(--hover)}
+.tsk + .tsk{border-top:1px solid var(--rule)}
+
+/* kotak centang ala Notion */
+.tsk__c{
+  position:relative; top:2px;
+  width:16px; height:16px; flex:none;
+  border:1.5px solid var(--rule-strong); border-radius:3px;
+  background:var(--paper); padding:0; cursor:pointer;
+  display:grid; place-items:center;
+}
+.tsk__c svg{width:11px; height:11px; stroke:#fff; fill:none; stroke-width:2.6; opacity:0}
+.tsk__c:hover{border-color:var(--muted)}
+.tsk__c:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+.tsk__b{min-width:0}
+/* display:block wajib — ellipsis tidak berlaku pada span inline. */
+.tsk__t{display:block; font-size:13.5px; line-height:1.4; color:var(--ink)}
+.tsk__m{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:4px}
+.chip{
+  font-size:11px; color:var(--muted);
+  background:var(--sunken); border-radius:3px; padding:0 6px; white-space:nowrap;
+}
+.chip--time{font-family:var(--mono); color:var(--faint)}
+.chip--dl{color:var(--alert); background:var(--alert-soft); font-weight:500}
+.tsk__r{
+  font-family:var(--mono); font-size:12px; color:var(--faint);
+  white-space:nowrap; text-align:right; line-height:1.45;
+}
+
+/* --- status --- */
+.tsk--now{border-left-color:var(--accent); background:var(--accent-soft)}
+.tsk--now .tsk__t{font-weight:500; color:var(--ink-strong)}
+.tsk--now:hover{background:var(--accent-soft)}
+
+.tsk--crit{border-left-color:var(--alert)}
+.tsk--crit .tsk__t{font-weight:500}
+.tsk--crit .tsk__r{color:var(--alert); font-weight:500}
+
+.tsk--done{opacity:.55}
+.tsk--done .tsk__c{background:var(--accent); border-color:var(--accent)}
+.tsk--done .tsk__c svg{opacity:1}
+.tsk--done .tsk__t{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--rule-strong)}
+
+.tsk--lock{opacity:.72}
+.tsk--lock .tsk__c{border-style:dashed; cursor:not-allowed; background:var(--sunken)}
+.tsk--lock .tsk__t{color:var(--muted)}
+.tsk--lock .tsk__r{font-size:11.5px}
+
+/* ------------------------------------------------------- overdue ---- */
+/* Blok paling menonjol di halaman: latar alert-soft penuh, bukan sekadar aksen. */
+.overdue{
+  margin:0 -8px; padding:4px 8px 8px;
+  background:var(--alert-soft); border-radius:var(--r);
+}
+.overdue .tsk:hover{background:transparent}
+.overdue .tsk + .tsk{border-top-color:rgba(212,76,71,.18)}
+.overdue .chip{background:var(--paper)}
+.overdue .tsk__c{background:var(--paper)}
+
+/* -------------------------------------------------- blokir/kunci ---- */
+.blk{
+  display:block; margin-top:4px;
+  font-size:11.5px; line-height:1.5; color:var(--muted);
+}
+.blk b{font-family:var(--mono); font-weight:500; color:var(--ink); font-size:11.5px}
+
+/* --------------------------------------------------- milestone ------ */
+.mst{
+  display:grid; grid-template-columns:minmax(0,1fr) auto;
+  align-items:baseline; gap:12px;
+  padding:9px 8px; margin:0 -8px; border-radius:var(--r);
+}
+.mst:hover{background:var(--hover)}
+.mst + .mst{border-top:1px solid var(--rule)}
+.mst__k{font-size:13.5px; line-height:1.4; color:var(--ink)}
+.mst__k .s{display:block; margin-top:2px; font-family:var(--mono); font-size:11.5px; color:var(--faint)}
+.mst__v{
+  font-family:var(--mono); font-size:14.5px; white-space:nowrap; text-align:right;
+  font-variant-numeric:tabular-nums; line-height:1.3;
+}
+.mst__v .s{display:block; margin-top:3px; font-family:var(--sans); font-size:11px; color:var(--faint)}
+.mst--soon .mst__v{color:var(--alert); font-weight:500}
+.mst--near .mst__v{color:var(--out); font-weight:500}
+
+/* ------------------------------------------------- progres minggu --- */
+.wks{display:flex; flex-direction:column; gap:13px; margin-top:2px}
+.wk{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:5px 12px}
+.wk__k{font-size:13px}
+.wk__k s{display:block; text-decoration:none; font-family:var(--mono); font-size:11px; color:var(--faint); margin-top:1px}
+.wk__p{font-family:var(--mono); font-size:12.5px; color:var(--muted); text-align:right}
+.wk__b{grid-column:1 / -1; display:flex; align-items:center; gap:10px}
+.wk__b .meter{flex:1}
+.wk__n{font-family:var(--mono); font-size:11.5px; color:var(--faint); white-space:nowrap}
+.wk--now .wk__k{font-weight:600; color:var(--ink-strong)}
+.wk--now .wk__p{color:var(--accent); font-weight:500}
+
+/* ------------------------------------------------------------ FAB --- */
+.fab{
+  position:fixed; right:16px; bottom:74px; z-index:35;
+  width:52px; height:52px; border-radius:50%;
+  background:var(--accent); color:#fff; border:none; cursor:pointer;
+  font-size:24px; line-height:1; display:grid; place-items:center;
+}
+.fab:focus-visible{outline:3px solid var(--ink); outline-offset:2px}
+
+/* ----------------------------------------------------- bottom nav --- */
+.bnav{
+  position:fixed; left:0; right:0; bottom:0; z-index:34;
+  display:grid; grid-template-columns:repeat(4,1fr);
+  height:58px; background:var(--paper); border-top:1px solid var(--rule);
+}
+.bnav a{
+  display:grid; place-items:center; align-content:center; gap:3px;
+  text-decoration:none; color:var(--faint); font-size:11px; font-weight:500;
+}
+.bnav a[aria-current="page"]{color:var(--ink)}
+.bnav svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.7}
+
+.sidebar{display:none}
+
+/* ====================================================================
+   DESKTOP >= 1280px
+   ==================================================================== */
+@media (min-width:1280px){
+  .stage:not(.is-phone) .app{
+    display:grid; grid-template-columns:244px minmax(0,1fr);
+    padding-bottom:0; min-height:calc(100vh - 29px);
+  }
+
+  .stage:not(.is-phone) .sidebar{
+    display:flex; flex-direction:column;
+    background:var(--sunken); border-right:1px solid var(--rule);
+    position:sticky; top:29px; align-self:start;
+    height:calc(100vh - 29px); padding:10px 8px 12px;
+  }
+  .stage:not(.is-phone) .ws{
+    display:flex; align-items:center; gap:9px;
+    padding:7px 8px; border-radius:var(--r); margin-bottom:10px;
+  }
+  .stage:not(.is-phone) .ws:hover{background:var(--hover)}
+  .stage:not(.is-phone) .ws .av{
+    width:22px; height:22px; border-radius:3px; background:var(--accent); color:#fff;
+    display:grid; place-items:center; font-size:11px; font-weight:600; flex:none;
+  }
+  .stage:not(.is-phone) .ws .nm{font-size:13.5px; font-weight:600; color:var(--ink-strong)}
+  .stage:not(.is-phone) .ws .cr{font-size:11.5px; color:var(--faint); display:block; font-weight:400}
+
+  .stage:not(.is-phone) .snav{display:flex; flex-direction:column; gap:1px}
+  .stage:not(.is-phone) .snav a{
+    display:flex; align-items:center; gap:9px;
+    padding:6px 8px; border-radius:var(--r);
+    text-decoration:none; color:var(--muted); font-size:13.5px;
+  }
+  .stage:not(.is-phone) .snav a:hover{background:var(--hover); color:var(--ink)}
+  .stage:not(.is-phone) .snav a[aria-current="page"]{background:var(--hover); color:var(--ink-strong); font-weight:500}
+  .stage:not(.is-phone) .snav svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.7; flex:none; color:var(--faint)}
+  .stage:not(.is-phone) .snav a[aria-current="page"] svg{color:var(--ink)}
+  .stage:not(.is-phone) .snav .b{
+    margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--faint);
+  }
+  .stage:not(.is-phone) .snav .b--alert{color:var(--alert); font-weight:500}
+  .stage:not(.is-phone) .sgroup{
+    font-size:11.5px; font-weight:500; color:var(--faint);
+    padding:14px 8px 5px;
+  }
+  .stage:not(.is-phone) .newbtn{
+    margin:12px 0 0; padding:7px 9px; text-align:left;
+    background:transparent; color:var(--muted); border:none; border-radius:var(--r);
+    font:inherit; font-size:13.5px; cursor:pointer;
+    display:flex; align-items:center; gap:9px;
+  }
+  .stage:not(.is-phone) .newbtn:hover{background:var(--hover); color:var(--ink)}
+  .stage:not(.is-phone) .newbtn:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+  .stage:not(.is-phone) .sfoot{
+    margin-top:auto; padding:10px 8px 0; border-top:1px solid var(--rule);
+    font-size:11.5px; color:var(--faint); line-height:1.6;
+  }
+  .stage:not(.is-phone) .sfoot b{font-family:var(--mono); font-weight:500; color:var(--muted)}
+
+  .stage:not(.is-phone) .crumbs{padding:0 40px; top:29px}
+  .stage:not(.is-phone) .pagehead{padding:34px 40px 0}
+  .stage:not(.is-phone) .pagehead h1{font-size:34px}
+  .stage:not(.is-phone) .wrap{
+    display:grid; grid-template-columns:minmax(0,1fr) 336px;
+    gap:0 36px; padding:6px 40px 56px; align-items:start;
+  }
+  .stage:not(.is-phone) .col{display:flex; flex-direction:column}
+  .stage:not(.is-phone) .col--rail{
+    position:sticky; top:88px;
+    border-left:1px solid var(--rule); padding-left:36px;
+  }
+  .stage:not(.is-phone) .col--rail .sec:first-child{padding-top:22px}
+
+  .stage:not(.is-phone) .hero{font-size:44px}
+  .stage:not(.is-phone) .head2{
+    display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
+    gap:36px; align-items:center;
+  }
+
+  .stage:not(.is-phone) .fab,
+  .stage:not(.is-phone) .bnav{display:none}
+}
+
+/* pratinjau ponsel di layar lebar: elemen fixed ikut kurung 390px */
+.stage.is-phone .viewsel .note{display:none}
+.stage.is-phone .bnav{
+  left:50%; right:auto; width:390px; transform:translateX(-50%);
+  border-left:1px solid var(--rule); border-right:1px solid var(--rule);
+}
+.stage.is-phone .fab{right:auto; left:50%; margin-left:127px}
+
+@media (prefers-reduced-motion:reduce){ *{animation:none !important; transition:none !important} }
+</style>
+
+<div class="stage" id="stage">
+
+  <div class="viewsel">
+    <span class="k">Pratinjau</span>
+    <button type="button" id="btn-auto" aria-pressed="true">Desktop</button>
+    <button type="button" id="btn-phone" aria-pressed="false">Ponsel 390</button>
+    <span class="note">Mockup statis &middot; data dummy &middot; belum tersambung database</span>
+  </div>
+
+  <div class="app">
+
+    <!-- ======================= SIDEBAR (desktop) ======================= -->
+    <aside class="sidebar">
+      <div class="ws">
+        <span class="av">P</span>
+        <span class="nm">Pra-Launch<span class="cr">Toko Pet Supplies</span></span>
+      </div>
+
+      <nav class="snav">
+        <a href="#" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Hari ini<span class="b b--alert">2</span></a>
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M4 5h16v16H4z"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Timeline<span class="b">48</span></a>
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M4 18l5-6 4 3 7-9"/></svg>Progres<span class="b">21%</span></a>
+      </nav>
+
+      <div class="sgroup">Data</div>
+      <nav class="snav">
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M4 19h16"/></svg>Impor JSON</a>
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M12 17V5M8 9l4-4 4 4"/><path d="M4 19h16"/></svg>Ekspor JSON</a>
+        <a href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>Pengaturan</a>
+      </nav>
+
+      <button type="button" class="newbtn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg>
+        Task baru
+      </button>
+
+      <div class="sfoot">
+        Barang tiba <b>06 Okt 2026</b><br>
+        Reminder harian <b>07:00</b> WIB
+      </div>
+    </aside>
+
+    <div>
+      <!-- ======================= BREADCRUMB ======================= -->
+      <div class="crumbs">
+        <span>Pra-Launch</span><span class="sep">/</span><span class="here">Hari ini</span>
+        <span class="date">Sel, 08 Sep 2026</span>
+        <button type="button" class="iconbtn" aria-label="Pengaturan">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7">
+            <circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="pagehead">
+        <h1>Hari ini</h1>
+        <div class="sub">Selasa, 08 September 2026 &middot; Minggu 2 dari 5</div>
+      </div>
+
+      <div class="wrap">
+        <!-- ==================== KOLOM UTAMA ==================== -->
+        <div class="col col--main">
+
+          <!-- -------- HEADER: COUNTDOWN + PROGRES -------- -->
+          <section class="sec">
+            <div class="head2">
+              <div>
+                <div class="herorow">
+                  <span class="hero">28<span class="u">hari lagi</span></span>
+                  <span class="pill pill--out">4 minggu</span>
+                </div>
+                <div class="herosub">Barang tiba di gudang &middot; Selasa, 06 Okt 2026</div>
+              </div>
+
+              <div>
+                <div class="meter"><i style="width:21%"></i></div>
+                <div class="progline">
+                  <span class="v">21%</span>
+                  <span class="s">10 dari 48 task selesai</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- -------- OVERDUE -------- -->
+          <section class="sec">
+            <div class="sec__head">
+              <h2>Telat</h2>
+              <span class="count count--alert">2 task</span>
+              <span class="sec__note">memblokir 5 task lain</span>
+            </div>
+
+            <div class="overdue">
+              <div class="tsks">
+                <div class="tsk tsk--crit">
+                  <button type="button" class="tsk__c" aria-label="Tandai selesai"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></svg></button>
+                  <span class="tsk__b">
+                    <span class="tsk__t">Kunci nama toko + cek ketersediaan di Shopee &amp; Instagram</span>
+                    <span class="tsk__m">
+                      <span class="chip">Branding</span>
+                      <span class="chip chip--time">45m</span>
+                      <span class="chip chip--dl">Deadline</span>
+                    </span>
+                    <span class="blk">Memblokir <b>4 task</b> branding &amp; listing</span>
+                  </span>
+                  <span class="tsk__r">telat 3 hari<br>05 Sep</span>
+                </div>
+
+                <div class="tsk tsk--crit">
+                  <button type="button" class="tsk__c" aria-label="Tandai selesai"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></svg></button>
+                  <span class="tsk__b">
+                    <span class="tsk__t">Kumpulkan dokumen NIB — KTP, NPWP, alamat usaha</span>
+                    <span class="tsk__m">
+                      <span class="chip">Legal</span>
+                      <span class="chip chip--time">30m</span>
+                    </span>
+                    <span class="blk">Memblokir <b>1 task</b> — Daftar NIB di OSS</span>
+                  </span>
+                  <span class="tsk__r">telat 1 hari<br>07 Sep</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- -------- FOKUS HARI INI -------- -->
+          <section class="sec">
+            <div class="sec__head">
+              <h2>Fokus hari ini</h2>
+              <span class="count count--accent">1 / 4</span>
+              <span class="sec__note">est. 2j 45m</span>
+            </div>
+
+            <div class="tsks">
+              <div class="tsk tsk--now">
+                <button type="button" class="tsk__c" aria-label="Tandai selesai"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></svg></button>
+                <span class="tsk__b">
+                  <span class="tsk__t">Riset 10 kompetitor pet supplies di Shopee</span>
+                  <span class="tsk__m">
+                    <span class="chip">Riset</span>
+                    <span class="chip chip--time">60m</span>
+                  </span>
+                </span>
+                <span class="tsk__r">berjalan</span>
+              </div>
+
+              <div class="tsk">
+                <button type="button" class="tsk__c" aria-label="Tandai selesai"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></svg></button>
+                <span class="tsk__b">
+                  <span class="tsk__t">Catat harga jual &amp; estimasi fee 10 SKU pembanding</span>
+                  <span class="tsk__m">
+                    <span class="chip">Riset</span>
+                    <span class="chip chip--time">30m</span>
+                  </span>
+                </span>
+                <span class="tsk__r">hari ini</span>
+              </div>
+
+              <div class="tsk">
+                <button type="button" class="tsk__c" aria-label="Tandai selesai"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></svg></button>
+                <span class="tsk__b">
+                  <span class="tsk__t">Susun brief logo untuk desainer</span>
+                  <span class="tsk__m">
+                    <span class="chip">Branding</span>
+                    <span class="chip chip--time">30m</span>
+                    <span class="chip">Buffer</span>
+                  </span>
+                </span>
+                <span class="tsk__r">boleh geser</span>
+              </div>
+
+              <div class="tsk tsk--done">
+                <button type="button" class="tsk__c" aria-label="Batalkan"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></svg></button>
+                <span class="tsk__b">
+                  <span class="tsk__t">Daftar NIB di OSS</span>
+                  <span class="tsk__m">
+                    <span class="chip">Legal</span>
+                    <span class="chip chip--time">45m</span>
+                  </span>
+                </span>
+                <span class="tsk__r">09:12</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- -------- SIAP DIKERJAKAN -------- -->
+          <section class="sec">
+            <div class="sec__head">
+              <h2>Siap dikerjakan</h2>
+              <span class="count">3 task</span>
+              <span class="sec__note">dependensi sudah beres</span>
+            </div>
+
+            <div class="tsks">
+              <div class="tsk">
+                <button type="button" class="tsk__c" aria-label="Tandai selesai"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></svg></button>
+                <span class="tsk__b">
+                  <span class="tsk__t">Daftar akun Shopee Seller</span>
+                  <span class="tsk__m">
+                    <span class="chip">Listing</span>
+                    <span class="chip chip--time">40m</span>
+                    <span class="chip chip--dl">Deadline</span>
+                  </span>
+                </span>
+                <span class="tsk__r">11 Sep</span>
+              </div>
+
+              <div class="tsk">
+                <button type="button" class="tsk__c" aria-label="Tandai selesai"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></svg></button>
+                <span class="tsk__b">
+                  <span class="tsk__t">Tulis draft deskripsi 5 SKU utama</span>
+                  <span class="tsk__m">
+                    <span class="chip">Konten</span>
+                    <span class="chip chip--time">45m</span>
+                  </span>
+                </span>
+                <span class="tsk__r">12 Sep</span>
+              </div>
+
+              <div class="tsk">
+                <button type="button" class="tsk__c" aria-label="Tandai selesai"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></svg></button>
+                <span class="tsk__b">
+                  <span class="tsk__t">Bandingkan tarif J&amp;T, SiCepat, Anteraja untuk paket 1–3 kg</span>
+                  <span class="tsk__m">
+                    <span class="chip">Operasional</span>
+                    <span class="chip chip--time">30m</span>
+                  </span>
+                </span>
+                <span class="tsk__r">14 Sep</span>
+              </div>
+            </div>
+
+            <div class="callout callout--info">
+              <span class="ic">i</span>
+              <span>Jatah hari ini <b>2j</b>, terpakai <b>45m</b>. Tiga task di atas boleh dicicil tanpa mengganggu urutan.</span>
+            </div>
+          </section>
+
+        </div><!-- /col--main -->
+
+        <!-- ==================== RAIL KANAN (desktop) ==================== -->
+        <div class="col col--rail">
+
+          <!-- -------- TERKUNCI -------- -->
+          <section class="sec">
+            <div class="sec__head">
+              <h2>Terkunci</h2>
+              <span class="count">3 task</span>
+            </div>
+
+            <div class="tsks">
+              <div class="tsk tsk--lock">
+                <span class="tsk__c" aria-hidden="true"></span>
+                <span class="tsk__b">
+                  <span class="tsk__t">Upload 5 listing pertama</span>
+                  <span class="blk">Menunggu <b>Foto produk 5 SKU</b> dan <b>Akun Shopee Seller</b></span>
+                </span>
+                <span class="tsk__r">18 Sep</span>
+              </div>
+
+              <div class="tsk tsk--lock">
+                <span class="tsk__c" aria-hidden="true"></span>
+                <span class="tsk__b">
+                  <span class="tsk__t">Set ongkir &amp; alamat gudang</span>
+                  <span class="blk">Menunggu <b>Akun Shopee Seller</b></span>
+                </span>
+                <span class="tsk__r">16 Sep</span>
+              </div>
+
+              <div class="tsk tsk--lock">
+                <span class="tsk__c" aria-hidden="true"></span>
+                <span class="tsk__b">
+                  <span class="tsk__t">Aktifkan iklan Shopee untuk 3 SKU</span>
+                  <span class="blk">Menunggu <b>Upload 5 listing pertama</b></span>
+                </span>
+                <span class="tsk__r">05 Okt</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- -------- DEADLINE TERDEKAT -------- -->
+          <section class="sec">
+            <div class="sec__head">
+              <h2>Deadline terdekat</h2>
+              <span class="count">3 dari 7</span>
+            </div>
+
+            <div class="mst mst--soon">
+              <span class="mst__k">NIB terbit<span class="s">Kam, 10 Sep 2026</span></span>
+              <span class="mst__v">2<span class="s">hari</span></span>
+            </div>
+            <div class="mst mst--near">
+              <span class="mst__k">Akun Shopee Seller aktif<span class="s">Sel, 15 Sep 2026</span></span>
+              <span class="mst__v">7<span class="s">hari</span></span>
+            </div>
+            <div class="mst">
+              <span class="mst__k">Barang tiba di gudang<span class="s">Sel, 06 Okt 2026</span></span>
+              <span class="mst__v">28<span class="s">hari</span></span>
+            </div>
+
+            <div class="callout">
+              <span class="ic">!</span>
+              <span><b>NIB terbit</b> tinggal 2 hari, tapi task pendahulunya masih telat. Ini rantai paling berisiko minggu ini.</span>
+            </div>
+          </section>
+
+          <!-- -------- PROGRES PER MINGGU -------- -->
+          <section class="sec">
+            <div class="sec__head">
+              <h2>Progres per minggu</h2>
+              <span class="count">10 / 48</span>
+            </div>
+
+            <div class="wks">
+              <div class="wk">
+                <span class="wk__k">Minggu 1<s>01–07 Sep</s></span>
+                <span class="wk__p">82%</span>
+                <span class="wk__b"><span class="meter meter--q"><i style="width:82%"></i></span><span class="wk__n">9 / 11</span></span>
+              </div>
+              <div class="wk wk--now">
+                <span class="wk__k">Minggu 2<s>08–14 Sep</s></span>
+                <span class="wk__p">8%</span>
+                <span class="wk__b"><span class="meter"><i style="width:8%"></i></span><span class="wk__n">1 / 12</span></span>
+              </div>
+              <div class="wk">
+                <span class="wk__k">Minggu 3<s>15–21 Sep</s></span>
+                <span class="wk__p">0%</span>
+                <span class="wk__b"><span class="meter meter--q"><i style="width:0%"></i></span><span class="wk__n">0 / 10</span></span>
+              </div>
+              <div class="wk">
+                <span class="wk__k">Minggu 4<s>22–28 Sep</s></span>
+                <span class="wk__p">0%</span>
+                <span class="wk__b"><span class="meter meter--q"><i style="width:0%"></i></span><span class="wk__n">0 / 9</span></span>
+              </div>
+              <div class="wk">
+                <span class="wk__k">Minggu 5<s>29 Sep–06 Okt</s></span>
+                <span class="wk__p">0%</span>
+                <span class="wk__b"><span class="meter meter--q"><i style="width:0%"></i></span><span class="wk__n">0 / 6</span></span>
+              </div>
+            </div>
+
+            <div class="callout">
+              <span class="ic">~</span>
+              <span>Workstream <b>Branding</b> tertinggal — <b>0 dari 7</b> selesai, sementara rata-rata workstream lain sudah <b>24%</b>.</span>
+            </div>
+          </section>
+
+        </div><!-- /col--rail -->
+      </div><!-- /wrap -->
+    </div>
+
+    <button type="button" class="fab" aria-label="Tambah task">+</button>
+
+    <nav class="bnav">
+      <a href="#" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Hari ini</a>
+      <a href="#"><svg viewBox="0 0 24 24"><path d="M4 5h16v16H4z"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Timeline</a>
+      <a href="#"><svg viewBox="0 0 24 24"><path d="M4 18l5-6 4 3 7-9"/></svg>Progres</a>
+      <a href="#"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M4 19h16"/></svg>Impor</a>
+    </nav>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var stage = document.getElementById('stage');
+  var auto  = document.getElementById('btn-auto');
+  var phone = document.getElementById('btn-phone');
+  function set(isPhone){
+    stage.classList.toggle('is-phone', isPhone);
+    auto.setAttribute('aria-pressed', String(!isPhone));
+    phone.setAttribute('aria-pressed', String(isPhone));
+    stage.style.maxWidth   = isPhone ? '390px' : '';
+    stage.style.margin     = isPhone ? '0 auto' : '';
+    stage.style.boxShadow  = isPhone ? '0 0 0 1px var(--rule)' : '';
+  }
+  auto.addEventListener('click', function(){ set(false); });
+  phone.addEventListener('click', function(){ set(true); });
+})();
+</script>

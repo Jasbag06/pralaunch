@@ -1,0 +1,497 @@
+{
+  "tasks": [
+    {
+      "key": "w1-nama-toko",
+      "title": "Kunci nama toko + cek ketersediaan di Shopee & Instagram",
+      "description": "Sekali dikunci, semua aset branding mengikuti. Cek nama belum dipakai di Shopee, Instagram, dan sebagai domain.",
+      "scheduled_date": "2026-09-09",
+      "week_number": 1,
+      "workstream": "Branding",
+      "priority": "critical",
+      "estimated_minutes": 60,
+      "sort_order": 1
+    },
+    {
+      "key": "w1-kbli",
+      "title": "Tentukan KBLI yang tepat untuk perdagangan pet supplies",
+      "description": "Salah KBLI berarti NIB harus diurus ulang. Cek di OSS sebelum mendaftar.",
+      "scheduled_date": "2026-09-10",
+      "week_number": 1,
+      "workstream": "Legal",
+      "estimated_minutes": 30,
+      "sort_order": 1
+    },
+    {
+      "key": "w1-nib-dokumen",
+      "title": "Siapkan dokumen NIB: KTP, NPWP, alamat usaha",
+      "scheduled_date": "2026-09-10",
+      "week_number": 1,
+      "workstream": "Legal",
+      "estimated_minutes": 30,
+      "sort_order": 2
+    },
+    {
+      "key": "w1-nib-daftar",
+      "title": "Daftar NIB di OSS",
+      "scheduled_date": "2026-09-11",
+      "week_number": 1,
+      "workstream": "Legal",
+      "priority": "critical",
+      "is_deadline": true,
+      "estimated_minutes": 60,
+      "depends_on": ["w1-kbli", "w1-nib-dokumen"],
+      "sort_order": 1
+    },
+    {
+      "key": "w1-izin-edar",
+      "title": "Cek apakah SKU-mu butuh izin edar atau tidak",
+      "description": "Pakan, camilan, dan suplemen hewan umumnya diatur Kementan; aksesoris dan mainan biasanya tidak. Pastikan sebelum barang tiba — bukan sesudah.",
+      "scheduled_date": "2026-09-11",
+      "week_number": 1,
+      "workstream": "Legal",
+      "priority": "critical",
+      "estimated_minutes": 45,
+      "sort_order": 2
+    },
+    {
+      "key": "w1-riset-kompetitor",
+      "title": "Riset 10 kompetitor pet supplies di Shopee",
+      "description": "Catat: harga, jumlah terjual, gaya foto, panjang deskripsi, rating.",
+      "scheduled_date": "2026-09-12",
+      "week_number": 1,
+      "workstream": "Riset",
+      "estimated_minutes": 90,
+      "sort_order": 1
+    },
+    {
+      "key": "w1-catat-harga",
+      "title": "Catat rentang harga 20 SKU pembanding",
+      "scheduled_date": "2026-09-13",
+      "week_number": 1,
+      "workstream": "Riset",
+      "estimated_minutes": 60,
+      "depends_on": ["w1-riset-kompetitor"],
+      "sort_order": 1
+    },
+    {
+      "key": "w1-rekening",
+      "title": "Siapkan rekening / e-wallet khusus bisnis",
+      "description": "Uang bisnis campur uang pribadi bikin pembukuan mustahil dirapikan belakangan.",
+      "scheduled_date": "2026-09-13",
+      "week_number": 1,
+      "workstream": "Keuangan",
+      "estimated_minutes": 45,
+      "sort_order": 2
+    },
+    {
+      "key": "w1-npwp-cek",
+      "title": "Pastikan status NPWP sesuai untuk jualan online",
+      "scheduled_date": "2026-09-14",
+      "week_number": 1,
+      "workstream": "Legal",
+      "estimated_minutes": 30,
+      "sort_order": 1
+    },
+    {
+      "key": "w1-shopee-daftar",
+      "title": "Daftar akun Shopee Seller",
+      "scheduled_date": "2026-09-14",
+      "week_number": 1,
+      "workstream": "Listing",
+      "priority": "critical",
+      "estimated_minutes": 45,
+      "depends_on": ["w1-nama-toko", "w1-nib-daftar"],
+      "sort_order": 2
+    },
+    {
+      "key": "w1-shopee-profil",
+      "title": "Lengkapi profil toko + verifikasi identitas",
+      "scheduled_date": "2026-09-15",
+      "week_number": 1,
+      "workstream": "Listing",
+      "is_deadline": true,
+      "estimated_minutes": 45,
+      "depends_on": ["w1-shopee-daftar"],
+      "sort_order": 1
+    },
+    {
+      "key": "w1-modal",
+      "title": "Catat modal awal & alokasi stok / marketing / buffer",
+      "scheduled_date": "2026-09-15",
+      "week_number": 1,
+      "workstream": "Keuangan",
+      "estimated_minutes": 45,
+      "depends_on": ["w1-rekening"],
+      "sort_order": 2
+    },
+
+    {
+      "key": "w2-brief-logo",
+      "title": "Susun brief logo & banner untuk desainer",
+      "scheduled_date": "2026-09-16",
+      "week_number": 2,
+      "workstream": "Branding",
+      "estimated_minutes": 45,
+      "depends_on": ["w1-nama-toko"],
+      "sort_order": 1
+    },
+    {
+      "key": "w2-instagram",
+      "title": "Buat akun Instagram bisnis + bio",
+      "scheduled_date": "2026-09-16",
+      "week_number": 2,
+      "workstream": "Branding",
+      "estimated_minutes": 30,
+      "depends_on": ["w1-nama-toko"],
+      "sort_order": 2
+    },
+    {
+      "key": "w2-sku-list",
+      "title": "Susun daftar SKU final + kode SKU",
+      "description": "Kode SKU dipakai di listing, pembukuan, dan label rak. Tetapkan sekali, pakai di semua tempat.",
+      "scheduled_date": "2026-09-17",
+      "week_number": 2,
+      "workstream": "Listing",
+      "estimated_minutes": 45,
+      "sort_order": 1
+    },
+    {
+      "key": "w2-hitung-hpp",
+      "title": "Hitung landed cost per SKU",
+      "description": "Harga barang + ongkir internasional + ongkir domestik + handling, dibagi rata ke tiap unit. Ini dasar semua keputusan harga.",
+      "scheduled_date": "2026-09-17",
+      "week_number": 2,
+      "workstream": "Keuangan",
+      "priority": "critical",
+      "estimated_minutes": 60,
+      "depends_on": ["w2-sku-list"],
+      "sort_order": 2
+    },
+    {
+      "key": "w2-harga-jual",
+      "title": "Tentukan harga jual & cek margin setelah fee Shopee",
+      "description": "Fee marketplace, biaya proses per pesanan, dan ongkir yang kamu tanggung semuanya memakan margin. Hitung margin bersih, bukan kotor.",
+      "scheduled_date": "2026-09-18",
+      "week_number": 2,
+      "workstream": "Keuangan",
+      "priority": "critical",
+      "is_deadline": true,
+      "estimated_minutes": 75,
+      "depends_on": ["w2-hitung-hpp", "w1-catat-harga"],
+      "sort_order": 1
+    },
+    {
+      "key": "w2-logo-jadi",
+      "title": "Finalisasi logo + banner toko",
+      "scheduled_date": "2026-09-19",
+      "week_number": 2,
+      "workstream": "Branding",
+      "estimated_minutes": 90,
+      "depends_on": ["w2-brief-logo"],
+      "sort_order": 1
+    },
+    {
+      "key": "w2-keyword",
+      "title": "Riset keyword untuk judul listing",
+      "description": "Pakai kolom pencarian Shopee: ketik kata dasar, catat saran yang muncul.",
+      "scheduled_date": "2026-09-19",
+      "week_number": 2,
+      "workstream": "Riset",
+      "estimated_minutes": 45,
+      "sort_order": 2
+    },
+    {
+      "key": "w2-deskripsi-template",
+      "title": "Susun template deskripsi produk",
+      "description": "Satu template yang bisa diisi ulang untuk tiap SKU jauh lebih cepat daripada menulis dari nol berkali-kali.",
+      "scheduled_date": "2026-09-20",
+      "week_number": 2,
+      "workstream": "Konten",
+      "estimated_minutes": 60,
+      "depends_on": ["w2-keyword"],
+      "sort_order": 1
+    },
+    {
+      "key": "w2-supplier-konfirmasi",
+      "title": "Konfirmasi jadwal kirim & nomor tracking ke supplier",
+      "scheduled_date": "2026-09-21",
+      "week_number": 2,
+      "workstream": "Supplier",
+      "priority": "critical",
+      "estimated_minutes": 30,
+      "sort_order": 1
+    },
+    {
+      "key": "w2-forwarder",
+      "title": "Pastikan dokumen impor lengkap di forwarder",
+      "description": "Invoice, packing list, HS code. Dokumen kurang = barang tertahan, dan itu memundurkan semua yang ada di belakangnya.",
+      "scheduled_date": "2026-09-22",
+      "week_number": 2,
+      "workstream": "Supplier",
+      "priority": "critical",
+      "estimated_minutes": 60,
+      "depends_on": ["w2-supplier-konfirmasi"],
+      "sort_order": 1
+    },
+
+    {
+      "key": "w3-foto-rencana",
+      "title": "Rencana foto produk: shotlist + properti",
+      "description": "Tentukan latar, pencahayaan, dan sudut sebelum barang datang, supaya hari pemotretan tinggal eksekusi.",
+      "scheduled_date": "2026-09-23",
+      "week_number": 3,
+      "workstream": "Konten",
+      "estimated_minutes": 45,
+      "sort_order": 1
+    },
+    {
+      "key": "w3-listing-draft",
+      "title": "Tulis draft 5 listing utama",
+      "scheduled_date": "2026-09-24",
+      "week_number": 3,
+      "workstream": "Konten",
+      "estimated_minutes": 90,
+      "depends_on": ["w2-deskripsi-template", "w2-harga-jual"],
+      "sort_order": 1
+    },
+    {
+      "key": "w3-ongkir",
+      "title": "Set alamat gudang, ongkir, dan kurir di Shopee",
+      "scheduled_date": "2026-09-25",
+      "week_number": 3,
+      "workstream": "Operasional",
+      "estimated_minutes": 45,
+      "depends_on": ["w1-shopee-profil"],
+      "sort_order": 1
+    },
+    {
+      "key": "w3-packing",
+      "title": "Beli perlengkapan packing",
+      "description": "Kardus, bubble wrap, lakban, label. Habis di hari pertama jualan itu masalah yang bisa dicegah sekarang.",
+      "scheduled_date": "2026-09-26",
+      "week_number": 3,
+      "workstream": "Operasional",
+      "estimated_minutes": 90,
+      "sort_order": 1
+    },
+    {
+      "key": "w3-listing-sisa",
+      "title": "Tulis draft listing untuk SKU sisanya",
+      "scheduled_date": "2026-09-27",
+      "week_number": 3,
+      "workstream": "Konten",
+      "estimated_minutes": 90,
+      "depends_on": ["w3-listing-draft"],
+      "sort_order": 1
+    },
+    {
+      "key": "w3-kebijakan",
+      "title": "Susun kebijakan retur, garansi, dan FAQ toko",
+      "scheduled_date": "2026-09-28",
+      "week_number": 3,
+      "workstream": "Operasional",
+      "estimated_minutes": 45,
+      "sort_order": 1
+    },
+    {
+      "key": "w3-gudang",
+      "title": "Siapkan area penyimpanan + rak",
+      "description": "Barang sekontainer kecil butuh tempat. Ukur dulu, jangan sampai kardus menumpuk di ruang tamu.",
+      "scheduled_date": "2026-09-29",
+      "week_number": 3,
+      "workstream": "Operasional",
+      "estimated_minutes": 60,
+      "sort_order": 1
+    },
+
+    {
+      "key": "w4-cek-pengiriman",
+      "title": "Cek posisi pengiriman & estimasi bea masuk",
+      "scheduled_date": "2026-09-30",
+      "week_number": 4,
+      "workstream": "Supplier",
+      "priority": "critical",
+      "estimated_minutes": 30,
+      "depends_on": ["w2-forwarder"],
+      "sort_order": 1
+    },
+    {
+      "key": "w4-checklist-terima",
+      "title": "Susun checklist penerimaan & QC barang",
+      "description": "Cocokkan jumlah dengan packing list, cek cacat, foto kondisi kardus saat dibuka — bukti kalau ada klaim.",
+      "scheduled_date": "2026-10-01",
+      "week_number": 4,
+      "workstream": "Operasional",
+      "estimated_minutes": 45,
+      "sort_order": 1
+    },
+    {
+      "key": "w4-ads-rencana",
+      "title": "Rencana iklan Shopee: SKU, budget harian, kata kunci",
+      "scheduled_date": "2026-10-02",
+      "week_number": 4,
+      "workstream": "Ads",
+      "estimated_minutes": 60,
+      "depends_on": ["w2-harga-jual", "w2-keyword"],
+      "sort_order": 1
+    },
+    {
+      "key": "w4-konten-sosmed",
+      "title": "Siapkan 5 konten Instagram untuk minggu pertama",
+      "scheduled_date": "2026-10-03",
+      "week_number": 4,
+      "workstream": "Konten",
+      "estimated_minutes": 90,
+      "depends_on": ["w2-logo-jadi", "w2-instagram"],
+      "sort_order": 1
+    },
+    {
+      "key": "w4-buffer",
+      "title": "Buffer: kejar yang tertinggal",
+      "description": "Sengaja dikosongkan. Kalau semuanya on track, pakai untuk istirahat.",
+      "scheduled_date": "2026-10-04",
+      "week_number": 4,
+      "workstream": "Operasional",
+      "priority": "buffer",
+      "estimated_minutes": 90,
+      "sort_order": 1
+    },
+    {
+      "key": "w4-simulasi-order",
+      "title": "Simulasi alur pesanan dari checkout sampai kirim",
+      "description": "Pesan sendiri satu barang. Lebih baik menemukan alamat salah atau ongkir aneh sekarang daripada dari komplain pembeli.",
+      "scheduled_date": "2026-10-05",
+      "week_number": 4,
+      "workstream": "Operasional",
+      "estimated_minutes": 60,
+      "depends_on": ["w3-ongkir", "w3-packing"],
+      "sort_order": 1
+    },
+    {
+      "key": "w4-terima-barang",
+      "title": "Terima barang & cocokkan jumlah dengan packing list",
+      "scheduled_date": "2026-10-06",
+      "week_number": 4,
+      "workstream": "Operasional",
+      "priority": "critical",
+      "is_deadline": true,
+      "estimated_minutes": 120,
+      "depends_on": ["w4-checklist-terima", "w3-gudang"],
+      "sort_order": 1
+    },
+
+    {
+      "key": "w5-qc",
+      "title": "QC per SKU: cek cacat, hitung stok akhir",
+      "scheduled_date": "2026-10-07",
+      "week_number": 5,
+      "workstream": "Operasional",
+      "priority": "critical",
+      "estimated_minutes": 120,
+      "depends_on": ["w4-terima-barang"],
+      "sort_order": 1
+    },
+    {
+      "key": "w5-input-stok",
+      "title": "Input stok & landed cost final ke pembukuan",
+      "description": "Angka final baru diketahui setelah QC — jumlah yang cacat mengubah HPP per unit yang benar-benar bisa dijual.",
+      "scheduled_date": "2026-10-08",
+      "week_number": 5,
+      "workstream": "Keuangan",
+      "estimated_minutes": 60,
+      "depends_on": ["w5-qc", "w2-hitung-hpp"],
+      "sort_order": 1
+    },
+    {
+      "key": "w5-foto-produk",
+      "title": "Foto produk semua SKU",
+      "scheduled_date": "2026-10-09",
+      "week_number": 5,
+      "workstream": "Konten",
+      "priority": "critical",
+      "estimated_minutes": 150,
+      "depends_on": ["w5-qc", "w3-foto-rencana"],
+      "sort_order": 1
+    },
+    {
+      "key": "w5-edit-foto",
+      "title": "Edit & siapkan foto untuk listing",
+      "scheduled_date": "2026-10-10",
+      "week_number": 5,
+      "workstream": "Konten",
+      "estimated_minutes": 90,
+      "depends_on": ["w5-foto-produk"],
+      "sort_order": 1
+    },
+    {
+      "key": "w5-upload-listing",
+      "title": "Upload semua listing ke Shopee",
+      "scheduled_date": "2026-10-11",
+      "week_number": 5,
+      "workstream": "Listing",
+      "priority": "critical",
+      "is_deadline": true,
+      "estimated_minutes": 120,
+      "depends_on": ["w5-edit-foto", "w3-listing-sisa", "w3-ongkir", "w5-input-stok"],
+      "sort_order": 1
+    },
+    {
+      "key": "w5-iklan-nyala",
+      "title": "Aktifkan iklan Shopee untuk 3 SKU utama",
+      "scheduled_date": "2026-10-12",
+      "week_number": 5,
+      "workstream": "Ads",
+      "estimated_minutes": 45,
+      "depends_on": ["w5-upload-listing", "w4-ads-rencana"],
+      "sort_order": 1
+    },
+    {
+      "key": "w5-review",
+      "title": "Review minggu pertama: apa yang laku, apa yang perlu diubah",
+      "scheduled_date": "2026-10-13",
+      "week_number": 5,
+      "workstream": "Riset",
+      "estimated_minutes": 45,
+      "depends_on": ["w5-iklan-nyala"],
+      "sort_order": 1
+    }
+  ],
+
+  "milestones": [
+    {
+      "key": "nib-terbit",
+      "title": "NIB terbit",
+      "target_date": "2026-09-11",
+      "week_number": 1,
+      "sort_order": 1
+    },
+    {
+      "key": "toko-aktif",
+      "title": "Akun Shopee Seller aktif & terverifikasi",
+      "target_date": "2026-09-15",
+      "week_number": 1,
+      "sort_order": 2
+    },
+    {
+      "key": "harga-terkunci",
+      "title": "Harga jual & margin terkunci",
+      "target_date": "2026-09-18",
+      "week_number": 2,
+      "sort_order": 1
+    },
+    {
+      "key": "barang-tiba",
+      "title": "Barang tiba di gudang",
+      "target_date": "2026-10-06",
+      "week_number": 4,
+      "sort_order": 1
+    },
+    {
+      "key": "toko-tayang",
+      "title": "Semua listing tayang di Shopee",
+      "target_date": "2026-10-11",
+      "week_number": 5,
+      "sort_order": 1
+    }
+  ]
+}

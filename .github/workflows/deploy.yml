@@ -1,0 +1,73 @@
+name: Deploy ke GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Deploy yang lebih baru membatalkan yang masih berjalan — tidak ada gunanya
+# menyelesaikan build dari commit yang sudah tersalip.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Secret kosong tidak membuat build gagal — supabase.ts baru melempar
+      # saat dijalankan di browser. Tanpa penjagaan ini, deploy-nya "sukses"
+      # lalu kamu dapat layar putih tanpa petunjuk apa pun.
+      #
+      # Diperiksa lewat shell, bukan `if:`, karena konteks `secrets` tidak
+      # tersedia di kondisi level step — GitHub akan menolak workflow-nya.
+      - name: Periksa secret
+        env:
+          URL: ${{ secrets.VITE_SUPABASE_URL }}
+          KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VAPID: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::error::VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY belum diisi di Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+          if [ -z "$VAPID" ]; then
+            echo "::warning::VITE_VAPID_PUBLIC_KEY kosong — app tetap jalan, tapi tombol notifikasi di Pengaturan akan gagal."
+          fi
+
+      - run: npm test
+
+      - name: Build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

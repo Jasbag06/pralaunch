@@ -1,0 +1,7 @@
+<!-- Versi maskable: latar penuh tanpa sudut membulat, dan huruf dikecilkan
+     supaya tetap utuh di dalam safe zone 80% saat Android memotongnya
+     jadi lingkaran, squircle, atau bentuk lain. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#2383E2"/>
+  <text x="256" y="272" fill="#FFFFFF" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="216" font-weight="700" text-anchor="middle" dominant-baseline="central">P</text>
+</svg>

@@ -1,0 +1,117 @@
+/* ============================================================
+   Token desain — diangkat apa adanya dari mockup yang di-approve
+   (pralaunch/mockup/dashboard.html), yang sendirinya mewarisi
+   mockup/dashboard.html milik ARUS.
+
+   Jangan menulis warna literal di komponen. Semua lewat variabel
+   di sini, supaya light/dark dan konsistensi dengan ARUS terjaga
+   dari satu tempat.
+   ============================================================ */
+
+:root {
+  --ink: #37352f;
+  --ink-strong: #1f1e1b;
+  --paper: #ffffff;
+  --sunken: #f7f7f5;
+  --hover: #f1f1ef;
+  --rule: #e9e9e7;
+  --rule-strong: #dad9d6;
+  --muted: #787774;
+  --faint: #9b9a97;
+
+  --accent: #2383e2;
+  --accent-soft: #e7f3f8;
+
+  --in: #0f7b6c;
+  --in-soft: #edf3ec;
+  --out: #d9730d;
+  --out-soft: #faebdd;
+  --alert: #d44c47;
+  --alert-soft: #fbe4e4;
+
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --sans: 'Inter', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  --r: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ink: #d4d4d4;
+    --ink-strong: #ededed;
+    --paper: #191919;
+    --sunken: #202020;
+    --hover: #2c2c2c;
+    --rule: #2f2f2f;
+    --rule-strong: #454545;
+    --muted: #9b9b9b;
+    --faint: #7e7e7e;
+
+    --accent: #529cca;
+    --accent-soft: #1e2c34;
+
+    --in: #4dab9a;
+    --in-soft: #242b2a;
+    --out: #ffa344;
+    --out-soft: #33281d;
+    --alert: #ff7369;
+    --alert-soft: #332423;
+  }
+}
+
+:root[data-theme='dark'] {
+  --ink: #d4d4d4;
+  --ink-strong: #ededed;
+  --paper: #191919;
+  --sunken: #202020;
+  --hover: #2c2c2c;
+  --rule: #2f2f2f;
+  --rule-strong: #454545;
+  --muted: #9b9b9b;
+  --faint: #7e7e7e;
+
+  --accent: #529cca;
+  --accent-soft: #1e2c34;
+
+  --in: #4dab9a;
+  --in-soft: #242b2a;
+  --out: #ffa344;
+  --out-soft: #33281d;
+  --alert: #ff7369;
+  --alert-soft: #332423;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  font-feature-settings: 'tnum' 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Semua angka, tanggal, dan countdown memakai ini. */
+.num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
