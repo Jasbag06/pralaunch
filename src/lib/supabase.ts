@@ -16,6 +16,10 @@ export const supabase = createClient(url, anonKey, {
     // tidak minta login ulang tiap dibuka.
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false,
+    // true: dibutuhkan supaya link magic-link / reset password dari email
+    // Supabase (yang membawa token di URL hash) bisa membentuk sesi begitu
+    // dibuka. Supabase-js membersihkan hash itu sendiri setelah diproses,
+    // jadi tidak bentrok lama dengan router hash milik app ini.
+    detectSessionInUrl: true,
   },
 });
