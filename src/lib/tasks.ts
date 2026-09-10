@@ -370,6 +370,34 @@ export function completedLog(tasks: Task[], from?: IsoDate, to?: IsoDate): LogDa
     }));
 }
 
+/**
+ * Task selesai yang menyimpan hasil — yaitu yang punya lampiran.
+ *
+ * Ini permukaan untuk MENEMUKAN LAGI, bukan untuk memamerkan progres, jadi
+ * yang tidak punya lampiran tidak ikut: tidak ada yang bisa dibuka darinya.
+ *
+ * Yang penting (deadline / kritis) naik ke atas alih-alih murni terbaru.
+ * Justru berkas seperti NIB atau bukti pendaftaran itulah yang dicari lagi
+ * berminggu-minggu kemudian — kalau diurut waktu saja, ia terkubur oleh
+ * pekerjaan kemarin yang lebih remeh.
+ */
+export function savedResults(
+  tasks: Task[],
+  withAttachment: Set<string>,
+  limit = 5,
+): Task[] {
+  const penting = (t: Task) => (t.is_deadline || t.priority === 'critical' ? 0 : 1);
+
+  return tasks
+    .filter((t) => t.status === 'done' && withAttachment.has(t.id))
+    .sort(
+      (a, b) =>
+        penting(a) - penting(b) ||
+        (b.completed_at ?? '').localeCompare(a.completed_at ?? ''),
+    )
+    .slice(0, limit);
+}
+
 // --------------------------------------------------------- milestone -------
 
 /** Milestone berikutnya yang belum tercapai, terdekat dulu. */

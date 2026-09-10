@@ -7,6 +7,7 @@ import {
   fmtFull,
   fmtRange,
   fmtShort,
+  jakartaDateOf,
   type IsoDate,
 } from '../lib/date';
 import {
@@ -18,6 +19,7 @@ import {
   laggingWorkstreams,
   progress,
   progressByWeek,
+  savedResults,
   totalMinutes,
   upcomingMilestones,
   weekRange,
@@ -65,6 +67,19 @@ export function Dashboard({
       upcoming: upcomingMilestones(milestones, today),
     };
   }, [tasks, milestones, today]);
+
+  // Hasil kerja yang tersimpan: task selesai yang punya lampiran, supaya
+  // berkasnya bisa ditemukan lagi tanpa menggali Timeline atau Progres.
+  const hasil = useMemo(() => {
+    const punya = new Set(
+      [...attachments].filter(([, list]) => list.length > 0).map(([id]) => id),
+    );
+    return {
+      teratas: savedResults(tasks, punya),
+      total: tasks.filter((t) => t.status === 'done' && punya.has(t.id)).length,
+      adaSelesai: tasks.some((t) => t.status === 'done'),
+    };
+  }, [tasks, attachments]);
 
   const { overdue, today: fokus, ready, locked, index, overall, byWeek, lagging, upcoming } = view;
 
@@ -295,6 +310,47 @@ export function Dashboard({
             </div>
           )}
         </section>
+
+        {/* -------- HASIL TERSIMPAN -------- */}
+        {(hasil.total > 0 || hasil.adaSelesai) && (
+          <section className="sec">
+            <div className="sec__head">
+              <h2>Hasil tersimpan</h2>
+              {hasil.total > 0 && <span className="count">{hasil.total} task</span>}
+            </div>
+
+            {hasil.total === 0 ? (
+              <p className="empty">
+                Belum ada hasil yang dilampirkan. Buka task yang sudah selesai, lalu
+                simpan file, link Drive, atau catatan lokasinya — nanti muncul di sini.
+              </p>
+            ) : (
+              <>
+                <div className="tsks">
+                  {hasil.teratas.map((t) => (
+                    <TaskRow
+                      key={t.id}
+                      task={t}
+                      onOpen={onOpen}
+                      attachments={attachments.get(t.id)}
+                      onOpenAttachment={onOpenAttachment}
+                      right={
+                        t.completed_at ? fmtShort(jakartaDateOf(t.completed_at)) : undefined
+                      }
+                    />
+                  ))}
+                </div>
+                {hasil.total > hasil.teratas.length && (
+                  <p className="attnote">
+                    <a href="#/progres">
+                      Lihat semua {hasil.total} hasil di Progres
+                    </a>
+                  </p>
+                )}
+              </>
+            )}
+          </section>
+        )}
 
         {/* -------- DEADLINE TERDEKAT -------- */}
         <section className="sec">

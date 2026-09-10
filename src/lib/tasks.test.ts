@@ -13,6 +13,7 @@ import {
   progress,
   progressByWeek,
   progressByWorkstream,
+  savedResults,
   totalMinutes,
   upcomingMilestones,
   weekRange,
@@ -482,5 +483,60 @@ describe('completedLog', () => {
   it('daftar kosong tidak meledak', () => {
     expect(completedLog([])).toEqual([]);
     expect(completedLog([belum])).toEqual([]);
+  });
+});
+
+describe('savedResults', () => {
+  const penting = task({
+    key: 'nib',
+    title: 'Daftar NIB',
+    status: 'done',
+    is_deadline: true,
+    completed_at: '2026-09-01T02:00:00Z',
+  });
+  const baru = task({
+    key: 'baru',
+    status: 'done',
+    completed_at: '2026-09-09T02:00:00Z',
+  });
+  const kritis = task({
+    key: 'kritis',
+    status: 'done',
+    priority: 'critical',
+    completed_at: '2026-09-02T02:00:00Z',
+  });
+  const belum = task({ key: 'belum', status: 'todo' });
+  const semua = [baru, penting, kritis, belum];
+  const punyaLampiran = new Set(semua.map((t) => t.id));
+
+  it('hanya task selesai yang punya lampiran', () => {
+    const tanpa = new Set([penting.id]);
+    expect(savedResults(semua, tanpa).map((t) => t.key)).toEqual(['nib']);
+  });
+
+  it('task yang belum selesai tidak pernah ikut walau punya lampiran', () => {
+    expect(savedResults([belum], new Set([belum.id]))).toEqual([]);
+  });
+
+  it('yang penting naik ke atas walau diselesaikan lebih dulu', () => {
+    // 'baru' selesai paling akhir, tapi 'nib' & 'kritis' lebih penting
+    expect(savedResults(semua, punyaLampiran).map((t) => t.key)).toEqual([
+      'kritis',
+      'nib',
+      'baru',
+    ]);
+  });
+
+  it('sesama penting diurut dari yang terbaru diselesaikan', () => {
+    const hasil = savedResults([penting, kritis], new Set([penting.id, kritis.id]));
+    expect(hasil.map((t) => t.key)).toEqual(['kritis', 'nib']);
+  });
+
+  it('menghormati batas jumlah', () => {
+    expect(savedResults(semua, punyaLampiran, 2)).toHaveLength(2);
+  });
+
+  it('tanpa lampiran sama sekali menghasilkan daftar kosong', () => {
+    expect(savedResults(semua, new Set())).toEqual([]);
   });
 });
