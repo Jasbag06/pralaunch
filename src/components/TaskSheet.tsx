@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { addDays, fmtDayShort, nextWeekend, type IsoDate } from '../lib/date';
+import { addDays, fmtDayShort, jakartaDateOf, nextWeekend, type IsoDate } from '../lib/date';
 import { blockers, byKey, slugKey } from '../lib/tasks';
 import { PRIORITIES, TASK_STATUSES, WORKSTREAMS } from '../lib/types';
 import type { Priority, Task, TaskStatus, Workstream } from '../lib/types';
@@ -302,6 +302,12 @@ export function TaskSheet({
                 </span>
               ))}
               .
+            </p>
+          )}
+
+          {!isNew && task.completed_at && (
+            <p className="deps">
+              Diselesaikan <b>{fmtDayShort(jakartaDateOf(task.completed_at))}</b>
             </p>
           )}
 

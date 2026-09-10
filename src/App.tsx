@@ -106,7 +106,15 @@ function DevPreview({ view }: { view: PreviewView }) {
       onNewTask={() => setSheet({ task: null })}
     >
       {view === 'progres' && (
-        <ProgressPage tasks={tasks} milestones={milestones} today={today} />
+        <ProgressPage
+          tasks={tasks}
+          milestones={milestones}
+          today={today}
+          attachments={atts}
+          onToggle={onToggle}
+          onOpen={(t) => setSheet({ task: t })}
+          onOpenAttachment={previewOpen}
+        />
       )}
 
       {view === 'ekspor' && <ExportPage tasks={tasks} />}
@@ -563,7 +571,15 @@ export function App() {
       )}
 
       {route === '#/progres' && (
-        <ProgressPage tasks={tasks} milestones={milestones} today={today} />
+        <ProgressPage
+          tasks={tasks}
+          milestones={milestones}
+          today={today}
+          attachments={attachments}
+          onToggle={onToggle}
+          onOpen={(t) => setSheet({ task: t })}
+          onOpenAttachment={openAttachment}
+        />
       )}
 
       {route === '#/impor' && (

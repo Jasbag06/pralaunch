@@ -1,20 +1,45 @@
-import { fmtDayShort, fmtRange, jakartaDateOf, type IsoDate } from '../lib/date';
+import { useMemo, useState } from 'react';
+import { fmtRange, fmtShort, type IsoDate } from '../lib/date';
 import {
-  completedInRange,
+  completedLog,
   groupByWeek,
   laggingWorkstreams,
   progress,
   progressByWorkstream,
 } from '../lib/tasks';
-import type { Milestone, Task } from '../lib/types';
+import type { Attachment, Milestone, Task } from '../lib/types';
+import { TaskRow } from './TaskRow';
+
+const HARI_PENDEK = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+function weekdayLabel(date: IsoDate): string {
+  const [y, m, d] = date.split('-').map(Number);
+  return HARI_PENDEK[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+}
+
+type Lingkup = 'minggu' | 'semua';
 
 interface Props {
   tasks: Task[];
   milestones: Milestone[];
   today: IsoDate;
+  attachments: Map<string, Attachment[]>;
+  onToggle: (task: Task) => void;
+  onOpen: (task: Task) => void;
+  onOpenAttachment: (a: Attachment) => void;
 }
 
-export function ProgressPage({ tasks, milestones, today }: Props) {
+export function ProgressPage({
+  tasks,
+  milestones,
+  today,
+  attachments,
+  onToggle,
+  onOpen,
+  onOpenAttachment,
+}: Props) {
+  const [lingkup, setLingkup] = useState<Lingkup>('minggu');
+
   const overall = progress(tasks);
   const weeks = groupByWeek(tasks, milestones);
   const byWs = progressByWorkstream(tasks);
@@ -25,9 +50,26 @@ export function ProgressPage({ tasks, milestones, today }: Props) {
     weeks.find((w) => w.from > today) ??
     weeks[weeks.length - 1];
 
-  const riwayat = mingguIni
-    ? completedInRange(tasks, mingguIni.from, mingguIni.to)
-    : [];
+  const log = useMemo(
+    () =>
+      lingkup === 'minggu' && mingguIni
+        ? completedLog(tasks, mingguIni.from, mingguIni.to)
+        : completedLog(tasks),
+    [tasks, lingkup, mingguIni],
+  );
+
+  const jumlahSelesai = log.reduce((n, d) => n + d.tasks.length, 0);
+
+  // Berapa lampiran yang menempel pada task-task itu — inilah alasan utama
+  // riwayat ini ada: menemukan lagi hasil kerja yang sudah dilampirkan.
+  const jumlahLampiran = useMemo(
+    () =>
+      log.reduce(
+        (n, d) => n + d.tasks.reduce((m, t) => m + (attachments.get(t.id)?.length ?? 0), 0),
+        0,
+      ),
+    [log, attachments],
+  );
 
   if (tasks.length === 0) {
     return (
@@ -72,6 +114,78 @@ export function ProgressPage({ tasks, milestones, today }: Props) {
           </div>
         </section>
 
+        {/* -------- RIWAYAT: apa yang sudah dikerjakan -------- */}
+        <section className="sec">
+          <div className="sec__head">
+            <h2>Sudah dikerjakan</h2>
+            <span className="count count--accent">{jumlahSelesai}</span>
+            {jumlahLampiran > 0 && (
+              <span className="sec__note">{jumlahLampiran} lampiran tersimpan</span>
+            )}
+          </div>
+
+          <div className="seg seg--2" style={{ marginBottom: 14 }}>
+            <button
+              type="button"
+              aria-pressed={lingkup === 'minggu'}
+              onClick={() => setLingkup('minggu')}
+            >
+              {mingguIni ? `Minggu ${mingguIni.week}` : 'Minggu ini'}
+            </button>
+            <button
+              type="button"
+              aria-pressed={lingkup === 'semua'}
+              onClick={() => setLingkup('semua')}
+            >
+              Semua
+            </button>
+          </div>
+
+          {log.length === 0 ? (
+            <p className="empty">
+              {lingkup === 'minggu'
+                ? 'Belum ada yang diselesaikan di minggu ini.'
+                : 'Belum ada task yang diselesaikan.'}
+            </p>
+          ) : (
+            <>
+              {log.map((hari) => (
+                <div className={`day${hari.date === today ? ' day--today' : ''}`} key={hari.date}>
+                  <div className="day__d">
+                    {weekdayLabel(hari.date)}
+                    <b>{fmtShort(hari.date)}</b>
+                  </div>
+                  <div className="day__b">
+                    <div className="tsks">
+                      {hari.tasks.map((t) => (
+                        <TaskRow
+                          key={t.id}
+                          task={t}
+                          onToggle={onToggle}
+                          onOpen={onOpen}
+                          attachments={attachments.get(t.id)}
+                          onOpenAttachment={onOpenAttachment}
+                          right={
+                            t.scheduled_date !== hari.date
+                              ? `jadwal ${fmtShort(t.scheduled_date)}`
+                              : undefined
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <p className="attnote">
+                Klik judulnya untuk membuka detail — catatan, estimasi, dan lampiran yang
+                kamu simpan waktu mengerjakan masih utuh di sana. Kotak centangnya masih
+                bisa dibatalkan kalau ternyata belum benar-benar selesai.
+              </p>
+            </>
+          )}
+        </section>
+
         {/* -------- PER MINGGU -------- */}
         <section className="sec">
           <div className="sec__head">
@@ -108,9 +222,7 @@ export function ProgressPage({ tasks, milestones, today }: Props) {
           <div className="sec__head">
             <h2>Per workstream</h2>
             <span className="count">{byWs.size} kategori</span>
-            {lagging.size > 0 && (
-              <span className="sec__note">{lagging.size} tertinggal</span>
-            )}
+            {lagging.size > 0 && <span className="sec__note">{lagging.size} tertinggal</span>}
           </div>
 
           <div className="wks">
@@ -143,44 +255,6 @@ export function ProgressPage({ tasks, milestones, today }: Props) {
                 rata-rata keseluruhan <b>{overall.pct}%</b>. Workstream berisi kurang dari
                 3 task tidak pernah ditandai — terlalu kecil untuk berarti.
               </span>
-            </div>
-          )}
-        </section>
-
-        {/* -------- RIWAYAT MINGGU INI -------- */}
-        <section className="sec">
-          <div className="sec__head">
-            <h2>Selesai minggu ini</h2>
-            <span className="count count--accent">{riwayat.length}</span>
-            {mingguIni && (
-              <span className="sec__note">
-                Minggu {mingguIni.week} · {fmtRange(mingguIni.from, mingguIni.to)}
-              </span>
-            )}
-          </div>
-
-          {riwayat.length === 0 ? (
-            <p className="empty">Belum ada yang diselesaikan minggu ini.</p>
-          ) : (
-            <div className="tsks">
-              {riwayat.map((t) => (
-                <div className="tsk tsk--done" key={t.id}>
-                  <span className="tsk__c" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M4 12l5 5L20 7" />
-                    </svg>
-                  </span>
-                  <span className="tsk__b">
-                    <span className="tsk__t">{t.title}</span>
-                    <span className="tsk__m">
-                      <span className="chip">{t.workstream}</span>
-                    </span>
-                  </span>
-                  <span className="tsk__r">
-                    {t.completed_at ? fmtDayShort(jakartaDateOf(t.completed_at)) : ''}
-                  </span>
-                </div>
-              ))}
             </div>
           )}
         </section>

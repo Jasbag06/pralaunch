@@ -6,6 +6,7 @@ import {
   blocksCount,
   buildDashboard,
   byKey,
+  completedLog,
   isBlocked,
   isOpen,
   laggingWorkstreams,
@@ -428,5 +429,58 @@ describe('slugKey', () => {
     for (const judul of ['Riset 10 kompetitor', '—— ??', 'Café', 'A'.repeat(120)]) {
       expect(slugKey(judul, 5)).toMatch(pola);
     }
+  });
+});
+
+describe('completedLog', () => {
+  const t9 = task({ key: 'a', status: 'done', completed_at: '2026-09-09T03:00:00Z' });
+  const t9b = task({ key: 'b', status: 'done', completed_at: '2026-09-09T08:00:00Z' });
+  const t8 = task({ key: 'c', status: 'done', completed_at: '2026-09-08T02:00:00Z' });
+  const belum = task({ key: 'd', status: 'todo' });
+  const dilewati = task({ key: 'e', status: 'skipped' });
+  const semua = [t8, t9, t9b, belum, dilewati];
+
+  it('mengelompokkan per tanggal selesai, hari terbaru di atas', () => {
+    const log = completedLog(semua);
+    expect(log.map((d) => d.date)).toEqual(['2026-09-09', '2026-09-08']);
+  });
+
+  it('dalam satu hari, yang paling baru diselesaikan di atas', () => {
+    const log = completedLog(semua);
+    expect(log[0].tasks.map((t) => t.key)).toEqual(['b', 'a']);
+  });
+
+  it('hanya task done — todo dan skipped tidak ikut', () => {
+    const keys = completedLog(semua).flatMap((d) => d.tasks.map((t) => t.key));
+    expect(keys).toEqual(['b', 'a', 'c']);
+  });
+
+  it('mengelompokkan menurut completed_at, bukan scheduled_date', () => {
+    // dijadwalkan 1 Sep tapi baru beres 9 Sep -> masuk hari 9 Sep
+    const molor = task({
+      key: 'molor',
+      scheduled_date: '2026-09-01',
+      status: 'done',
+      completed_at: '2026-09-09T05:00:00Z',
+    });
+    const log = completedLog([molor]);
+    expect(log[0].date).toBe('2026-09-09');
+  });
+
+  it('memakai tanggal Jakarta, bukan UTC', () => {
+    // 2026-09-09T17:30Z = 10 Sep 00:30 WIB
+    const malam = task({ key: 'malam', status: 'done', completed_at: '2026-09-09T17:30:00Z' });
+    expect(completedLog([malam])[0].date).toBe('2026-09-10');
+  });
+
+  it('menghormati rentang tanggal', () => {
+    const log = completedLog(semua, '2026-09-09', '2026-09-09');
+    expect(log.map((d) => d.date)).toEqual(['2026-09-09']);
+    expect(log[0].tasks).toHaveLength(2);
+  });
+
+  it('daftar kosong tidak meledak', () => {
+    expect(completedLog([])).toEqual([]);
+    expect(completedLog([belum])).toEqual([]);
   });
 });

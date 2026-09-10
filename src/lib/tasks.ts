@@ -331,6 +331,45 @@ export function completedInRange(tasks: Task[], from: IsoDate, to: IsoDate): Tas
     .sort((a, b) => (b.completed_at ?? '').localeCompare(a.completed_at ?? ''));
 }
 
+/** Satu hari dalam catatan riwayat, beserta task yang selesai di hari itu. */
+export interface LogDay {
+  date: IsoDate;
+  tasks: Task[];
+}
+
+/**
+ * Catatan "apa yang sudah aku kerjakan": task selesai, dikelompokkan per
+ * tanggal penyelesaian di Asia/Jakarta, hari terbaru di atas.
+ *
+ * Dikelompokkan menurut `completed_at`, BUKAN `scheduled_date` — yang ingin
+ * kamu ingat adalah kapan sesuatu benar-benar beres, bukan kapan ia semula
+ * dijadwalkan. Task yang molor tiga hari muncul di hari kamu menyelesaikannya.
+ *
+ * `skipped` sengaja tidak masuk: ini catatan hasil kerja, bukan daftar semua
+ * yang pernah hilang dari layar. Yang dilewati tetap bisa ditemukan di Timeline.
+ */
+export function completedLog(tasks: Task[], from?: IsoDate, to?: IsoDate): LogDay[] {
+  const perHari = new Map<IsoDate, Task[]>();
+
+  for (const t of tasks) {
+    if (t.status !== 'done' || !t.completed_at) continue;
+    const d = jakartaDateOf(t.completed_at);
+    if (from && d < from) continue;
+    if (to && d > to) continue;
+
+    const list = perHari.get(d);
+    if (list) list.push(t);
+    else perHari.set(d, [t]);
+  }
+
+  return [...perHari]
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([date, list]) => ({
+      date,
+      tasks: list.sort((a, b) => (b.completed_at ?? '').localeCompare(a.completed_at ?? '')),
+    }));
+}
+
 // --------------------------------------------------------- milestone -------
 
 /** Milestone berikutnya yang belum tercapai, terdekat dulu. */

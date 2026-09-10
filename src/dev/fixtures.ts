@@ -172,6 +172,10 @@ export const fixtureTasks: Task[] = [
       scheduled_date: '2026-09-0' + ((i % 5) + 1),
       week_number: 1,
       status: 'done',
+      // completed_at selalu terisi di produksi (trigger sync_completed_at),
+      // jadi fixture pun harus punya — tanpa ini riwayat "Sudah dikerjakan"
+      // tampak kosong padahal task-nya done.
+      completed_at: `2026-09-0${(i % 5) + 1}T0${2 + (i % 6)}:15:00Z`,
     }),
   ),
   // --- branding tertinggal, memicu deteksi pola. Semuanya bergantung pada
@@ -280,6 +284,13 @@ export const fixtureAttachments: Map<string, Attachment[]> = (() => {
   ];
 
   return new Map([
+    buat('w2-nib-daftar', [
+      { label: 'NIB terbit.pdf', url: 'https://drive.google.com/file/d/contoh' },
+      { label: 'Bukti submit OSS', url: 'https://oss.go.id/' },
+    ]),
+    buat('w1-beres-0', [
+      { label: 'Hasil riset supplier', url: 'https://docs.google.com/spreadsheets/' },
+    ]),
     buat('w1-nib-dokumen', [
       { label: 'Folder scan dokumen', url: 'https://drive.google.com/drive/my-drive' },
     ]),
