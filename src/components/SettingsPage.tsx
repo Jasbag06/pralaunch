@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { disablePush, enablePush, readStatus, type PushStatus } from '../lib/push';
 import { supabase } from '../lib/supabase';
+import { resolveTheme, setThemePref, useThemePref, type ThemePref } from '../lib/theme';
 import type { AppSettings } from '../lib/types';
 
 interface Props {
@@ -11,7 +12,14 @@ interface Props {
 
 const JAM = Array.from({ length: 24 }, (_, i) => i);
 
+const TEMA: { value: ThemePref; label: string }[] = [
+  { value: 'light', label: 'Terang' },
+  { value: 'dark', label: 'Gelap' },
+  { value: 'system', label: 'Ikut sistem' },
+];
+
 export function SettingsPage({ settings, email, onSave }: Props) {
+  const themePref = useThemePref();
   const [arrival, setArrival] = useState(settings.target_arrival_date ?? '');
   const [hour, setHour] = useState(settings.reminder_hour);
   const [reminderOn, setReminderOn] = useState(settings.reminder_enabled);
@@ -70,6 +78,41 @@ export function SettingsPage({ settings, email, onSave }: Props) {
   return (
     <div className="wrap">
       <div className="col col--main">
+        {/* -------- TAMPILAN -------- */}
+        <section className="sec">
+          <div className="sec__head">
+            <h2>Tampilan</h2>
+            <span className="count">
+              {themePref === 'system'
+                ? `ikut sistem · ${resolveTheme('system') === 'dark' ? 'gelap' : 'terang'}`
+                : themePref === 'dark'
+                  ? 'gelap'
+                  : 'terang'}
+            </span>
+          </div>
+
+          <div className="field">
+            <span className="field__k">Tema</span>
+            <div className="seg seg--3">
+              {TEMA.map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  aria-pressed={themePref === t.value}
+                  onClick={() => setThemePref(t.value)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <p className="attnote" style={{ marginTop: 0 }}>
+              Pilihan ini tersimpan di perangkat ini saja — HP dan laptop diatur
+              masing-masing. Ikon bulan/matahari di pojok kanan atas juga bisa dipakai
+              untuk ganti cepat.
+            </p>
+          </div>
+        </section>
+
         {/* -------- JADWAL -------- */}
         <section className="sec">
           <div className="sec__head">

@@ -120,6 +120,7 @@ src/
     tasks.ts       logika murni Dashboard: overdue, siap, terkunci, progres
                    (+ tasks.test.ts)
     tasksApi.ts    baca/tulis tasks & milestones + terapkan impor
+    theme.ts       tema terang/gelap/ikut-sistem (+ theme.test.ts)
     push.ts        daftar/hapus langganan push, resubscribe otomatis
     pushSupport.ts deteksi dukungan (murni) (+ pushSupport.test.ts)
     importer.ts    validasi JSON, peta nomor baris, rencana impor, ekspor
@@ -145,7 +146,7 @@ src/
     ImportPage.tsx   tempel JSON, validasi, preview, terapkan
     ExportPage.tsx   salin / unduh seluruh task
     ProgressPage.tsx per minggu, per workstream, riwayat mingguan
-    SettingsPage.tsx jadwal, jam reminder, status push, fallback email
+    SettingsPage.tsx tema, jadwal, jam reminder, status push, fallback email
   dev/
     fixtures.ts    data contoh untuk #/preview — DEV saja, tidak ikut produksi
   App.tsx          gerbang sesi + routing hash
