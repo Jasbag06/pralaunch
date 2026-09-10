@@ -72,6 +72,7 @@ export type TaskPatch = Partial<
     | 'estimated_minutes'
     | 'notes'
     | 'sort_order'
+    | 'result_hidden_at'
   >
 >;
 

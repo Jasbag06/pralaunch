@@ -261,6 +261,7 @@ function validateOne(
     'notes', 'sort_order',
     // field turunan yang wajar ikut terbawa dari hasil Ekspor
     'id', 'owner_id', 'completed_at', 'created_at', 'updated_at', 'milestone_id',
+    'result_hidden_at',
   ]);
   for (const k of Object.keys(o)) {
     if (!dikenal.has(k)) {

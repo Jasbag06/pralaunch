@@ -370,11 +370,21 @@ export function completedLog(tasks: Task[], from?: IsoDate, to?: IsoDate): LogDa
     }));
 }
 
+/** Task ini meninggalkan sesuatu yang bisa dilihat lagi: lampiran atau catatan. */
+export function hasResult(t: Task, withAttachment: Set<string>): boolean {
+  return withAttachment.has(t.id) || (t.notes != null && t.notes.trim() !== '');
+}
+
 /**
- * Task selesai yang menyimpan hasil — yaitu yang punya lampiran.
+ * Task selesai yang menyimpan hasil — lampiran ATAU catatan.
  *
- * Ini permukaan untuk MENEMUKAN LAGI, bukan untuk memamerkan progres, jadi
- * yang tidak punya lampiran tidak ikut: tidak ada yang bisa dibuka darinya.
+ * Catatan ikut dihitung karena sering justru itulah hasilnya: "nama fix:
+ * PetGo", "supplier pilih yang B", "harga jual 89rb". Tidak ada berkas, tapi
+ * itu keputusan yang perlu ditemukan lagi.
+ *
+ * Ini permukaan untuk MENEMUKAN LAGI, bukan memamerkan progres — task selesai
+ * yang tidak meninggalkan apa pun tidak ikut, karena tidak ada yang bisa
+ * dilihat darinya.
  *
  * Yang penting (deadline / kritis) naik ke atas alih-alih murni terbaru.
  * Justru berkas seperti NIB atau bukti pendaftaran itulah yang dicari lagi
@@ -389,7 +399,9 @@ export function savedResults(
   const penting = (t: Task) => (t.is_deadline || t.priority === 'critical' ? 0 : 1);
 
   return tasks
-    .filter((t) => t.status === 'done' && withAttachment.has(t.id))
+    .filter(
+      (t) => t.status === 'done' && !t.result_hidden_at && hasResult(t, withAttachment),
+    )
     .sort(
       (a, b) =>
         penting(a) - penting(b) ||

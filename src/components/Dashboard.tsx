@@ -15,6 +15,7 @@ import {
   blocksCount,
   buildDashboard,
   byKey,
+  hasResult,
   isOpen,
   laggingWorkstreams,
   progress,
@@ -36,6 +37,8 @@ interface Props {
   onOpen: (task: Task) => void;
   attachments: Map<string, Attachment[]>;
   onOpenAttachment: (a: Attachment) => void;
+  /** Singkirkan hasil dari Dasbor (tetap ada di riwayat). */
+  onHideResult: (task: Task) => void;
 }
 
 /** Milestone < 3 hari merah, < 10 hari oranye. */
@@ -54,6 +57,7 @@ export function Dashboard({
   onOpen,
   attachments,
   onOpenAttachment,
+  onHideResult,
 }: Props) {
   const view = useMemo(() => {
     const buckets = buildDashboard(tasks, today);
@@ -76,7 +80,9 @@ export function Dashboard({
     );
     return {
       teratas: savedResults(tasks, punya),
-      total: tasks.filter((t) => t.status === 'done' && punya.has(t.id)).length,
+      total: tasks.filter(
+        (t) => t.status === 'done' && !t.result_hidden_at && hasResult(t, punya),
+      ).length,
       adaSelesai: tasks.some((t) => t.status === 'done'),
     };
   }, [tasks, attachments]);
@@ -321,8 +327,8 @@ export function Dashboard({
 
             {hasil.total === 0 ? (
               <p className="empty">
-                Belum ada hasil yang dilampirkan. Buka task yang sudah selesai, lalu
-                simpan file, link Drive, atau catatan lokasinya — nanti muncul di sini.
+                Belum ada hasil yang tersimpan. Buka task yang sudah selesai, lalu isi
+                Catatan atau lampirkan file/link — nanti muncul di sini.
               </p>
             ) : (
               <>
@@ -334,6 +340,8 @@ export function Dashboard({
                       onOpen={onOpen}
                       attachments={attachments.get(t.id)}
                       onOpenAttachment={onOpenAttachment}
+                      showNote
+                      onDismiss={onHideResult}
                       right={
                         t.completed_at ? fmtShort(jakartaDateOf(t.completed_at)) : undefined
                       }

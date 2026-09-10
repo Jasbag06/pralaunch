@@ -21,6 +21,12 @@ interface Props {
   onOpen?: (task: Task) => void;
   /** Klik chip lampiran — buka file/link langsung dari daftar. */
   onOpenAttachment?: (a: Attachment) => void;
+  /** Tampilkan catatan langsung di baris, tanpa perlu buka detail. */
+  showNote?: boolean;
+  /** Tombol silang di ujung kanan — dipakai blok "Hasil tersimpan" untuk
+   *  menyingkirkan hasil dari Dasbor tanpa menghapus apa pun. */
+  onDismiss?: (task: Task) => void;
+  dismissLabel?: string;
 }
 
 const CHECK = (
@@ -64,6 +70,9 @@ export function TaskRow({
   onToggle,
   onOpen,
   onOpenAttachment,
+  showNote,
+  onDismiss,
+  dismissLabel,
 }: Props) {
   // Path lokal tidak bisa dibuka dari halaman web, jadi mengkliknya menyalin.
   // State-nya lokal per baris supaya konfirmasi "tersalin" tidak perlu
@@ -100,6 +109,10 @@ export function TaskRow({
           {task.is_deadline && <span className="chip chip--dl">Deadline</span>}
           {task.priority === 'buffer' && <span className="chip">Buffer</span>}
         </span>
+      )}
+
+      {showNote && task.notes && task.notes.trim() !== '' && (
+        <span className="tsk__note">{task.notes}</span>
       )}
 
       {blockedBy && blockedBy.length > 0 && (
@@ -184,7 +197,20 @@ export function TaskRow({
         )}
       </div>
 
-      <span className="tsk__r">{right}</span>
+      <span className="tsk__r">
+        {right}
+        {onDismiss && (
+          <button
+            type="button"
+            className="tsk__x"
+            onClick={() => onDismiss(task)}
+            aria-label={dismissLabel ?? `Singkirkan dari Dasbor: ${task.title}`}
+            title={dismissLabel ?? 'Singkirkan dari Dasbor — tetap tersimpan di riwayat'}
+          >
+            ×
+          </button>
+        )}
+      </span>
     </div>
   );
 }

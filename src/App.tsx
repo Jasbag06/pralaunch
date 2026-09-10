@@ -158,6 +158,13 @@ function DevPreview({ view }: { view: PreviewView }) {
           onOpen={(t) => setSheet({ task: t })}
           attachments={atts}
           onOpenAttachment={previewOpen}
+          onHideResult={(t) =>
+            setTasks(
+              tasks.map((x) =>
+                x.id === t.id ? { ...x, result_hidden_at: new Date().toISOString() } : x,
+              ),
+            )
+          }
         />
       ) : null}
 
@@ -455,6 +462,13 @@ export function App() {
     [session, refetch],
   );
 
+  /** Singkirkan hasil dari Dasbor. Task-nya tidak disentuh — cuma ditandai
+   *  supaya tidak lagi muncul di blok "Hasil tersimpan". */
+  const onHideResult = useCallback(async (task: Task) => {
+    const saved = await updateTask(task.id, { result_hidden_at: new Date().toISOString() });
+    setTasks((prev) => prev.map((t) => (t.id === saved.id ? saved : t)));
+  }, []);
+
   const onSaveSettings = useCallback(
     async (patch: Partial<AppSettings>) => {
       if (!session) return;
@@ -554,6 +568,7 @@ export function App() {
           onOpen={(t) => setSheet({ task: t })}
           attachments={attachments}
           onOpenAttachment={openAttachment}
+          onHideResult={onHideResult}
         />
       )}
 

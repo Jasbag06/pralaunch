@@ -165,6 +165,7 @@ export function ProgressPage({
                           onOpen={onOpen}
                           attachments={attachments.get(t.id)}
                           onOpenAttachment={onOpenAttachment}
+                          showNote
                           right={
                             t.scheduled_date !== hari.date
                               ? `jadwal ${fmtShort(t.scheduled_date)}`

@@ -31,6 +31,7 @@ function t(over: Partial<Task> & { key: string; title: string }): Task {
     depends_on: [],
     estimated_minutes: null,
     notes: null,
+    result_hidden_at: null,
     sort_order: n,
     created_at: '',
     updated_at: '',
@@ -102,6 +103,20 @@ export const fixtureTasks: Task[] = [
     estimated_minutes: 45,
     status: 'done',
     completed_at: '2026-09-08T02:12:00Z',
+    notes: 'NIB terbit, nomor 0212250XXXXXX. PDF disimpan di Drive.',
+  }),
+  t({
+    key: 'w1-nama-final',
+    title: 'Nama toko final dikunci',
+    workstream: 'Branding',
+    scheduled_date: '2026-09-06',
+    week_number: 1,
+    priority: 'critical',
+    estimated_minutes: 60,
+    status: 'done',
+    completed_at: '2026-09-06T09:00:00Z',
+    // Hasilnya murni catatan, tanpa lampiran sama sekali.
+    notes: 'nama fix: PetGo',
   }),
 
   // --- siap dikerjakan ---

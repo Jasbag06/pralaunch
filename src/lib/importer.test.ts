@@ -22,6 +22,7 @@ function task(over: Partial<Task> & { key: string }): Task {
     depends_on: [],
     estimated_minutes: null,
     notes: null,
+    result_hidden_at: null,
     sort_order: 0,
     created_at: '',
     updated_at: '',

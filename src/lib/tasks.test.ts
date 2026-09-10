@@ -7,6 +7,7 @@ import {
   buildDashboard,
   byKey,
   completedLog,
+  hasResult,
   isBlocked,
   isOpen,
   laggingWorkstreams,
@@ -42,6 +43,7 @@ function task(over: Partial<Task> & { key: string }): Task {
     depends_on: [],
     estimated_minutes: null,
     notes: null,
+    result_hidden_at: null,
     sort_order: 0,
     created_at: '',
     updated_at: '',
@@ -538,5 +540,63 @@ describe('savedResults', () => {
 
   it('tanpa lampiran sama sekali menghasilkan daftar kosong', () => {
     expect(savedResults(semua, new Set())).toEqual([]);
+  });
+
+  it('catatan dihitung sebagai hasil walau tidak ada lampiran', () => {
+    const bercatatan = task({
+      key: 'catatan',
+      status: 'done',
+      notes: 'nama fix: PetGo',
+      completed_at: '2026-09-05T02:00:00Z',
+    });
+    expect(savedResults([bercatatan], new Set()).map((t) => t.key)).toEqual(['catatan']);
+  });
+
+  it('catatan yang cuma spasi tidak dianggap hasil', () => {
+    const kosong = task({
+      key: 'kosong',
+      status: 'done',
+      notes: '   ',
+      completed_at: '2026-09-05T02:00:00Z',
+    });
+    expect(savedResults([kosong], new Set())).toEqual([]);
+  });
+
+  it('yang disembunyikan tidak muncul di Dasbor', () => {
+    const disembunyikan = task({
+      key: 'sembunyi',
+      status: 'done',
+      notes: 'sudah tidak dipakai',
+      completed_at: '2026-09-05T02:00:00Z',
+      result_hidden_at: '2026-09-09T10:00:00Z',
+    });
+    expect(savedResults([disembunyikan], new Set())).toEqual([]);
+  });
+
+  it('yang disembunyikan TETAP ada di riwayat — bukan penghapusan', () => {
+    const disembunyikan = task({
+      key: 'sembunyi',
+      status: 'done',
+      completed_at: '2026-09-05T02:00:00Z',
+      result_hidden_at: '2026-09-09T10:00:00Z',
+    });
+    const log = completedLog([disembunyikan]);
+    expect(log[0].tasks.map((t) => t.key)).toEqual(['sembunyi']);
+  });
+});
+
+describe('hasResult', () => {
+  it('true kalau punya lampiran', () => {
+    const t = task({ key: 'a' });
+    expect(hasResult(t, new Set([t.id]))).toBe(true);
+  });
+
+  it('true kalau punya catatan berisi', () => {
+    expect(hasResult(task({ key: 'b', notes: 'keputusan: pakai J&T' }), new Set())).toBe(true);
+  });
+
+  it('false kalau dua-duanya kosong', () => {
+    expect(hasResult(task({ key: 'c' }), new Set())).toBe(false);
+    expect(hasResult(task({ key: 'd', notes: '' }), new Set())).toBe(false);
   });
 });

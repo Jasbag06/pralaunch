@@ -41,6 +41,9 @@ export interface Task {
   estimated_minutes: number | null;
   notes: string | null;
   sort_order: number;
+  /** Disembunyikan dari blok "Hasil tersimpan" di Dasbor. Task-nya sendiri
+   *  tetap utuh — masih di riwayat, Timeline, dan hitungan progres. */
+  result_hidden_at: string | null;
   created_at: string;
   updated_at: string;
 }
