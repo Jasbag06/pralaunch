@@ -4,7 +4,7 @@ import { copyText, splitPath } from '../lib/attachments';
 import type { Attachment, Task } from '../lib/types';
 
 /** Warna garis kiri + bobot teks. Status `done` diturunkan dari task sendiri. */
-export type RowVariant = 'crit' | 'now' | 'lock';
+export type RowVariant = 'crit' | 'now' | 'lock' | 'warn';
 
 interface Props {
   task: Task;
@@ -27,6 +27,9 @@ interface Props {
    *  menyingkirkan hasil dari Dasbor tanpa menghapus apa pun. */
   onDismiss?: (task: Task) => void;
   dismissLabel?: string;
+  /** Baris penjelasan bebas di bawah judul — dipakai mis. saat task telat
+   *  ini sebenarnya sedang dikerjakan, bukan diabaikan. */
+  note?: ReactNode;
 }
 
 const CHECK = (
@@ -73,6 +76,7 @@ export function TaskRow({
   showNote,
   onDismiss,
   dismissLabel,
+  note,
 }: Props) {
   // Path lokal tidak bisa dibuka dari halaman web, jadi mengkliknya menyalin.
   // State-nya lokal per baris supaya konfirmasi "tersalin" tidak perlu
@@ -114,6 +118,8 @@ export function TaskRow({
       {showNote && task.notes && task.notes.trim() !== '' && (
         <span className="tsk__note">{task.notes}</span>
       )}
+
+      {note && <span className="blk">{note}</span>}
 
       {blockedBy && blockedBy.length > 0 && (
         <span className="blk">

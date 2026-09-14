@@ -73,6 +73,9 @@ export const fixtureTasks: Task[] = [
     scheduled_date: '2026-09-07',
     week_number: 1,
     estimated_minutes: 30,
+    // telat SATU hari tapi statusnya "Jalan" — kasus yang membedakan
+    // baris kuning (sedang dikerjakan) dari baris merah (belum disentuh).
+    status: 'in_progress',
   }),
 
   // --- hari ini ---

@@ -187,11 +187,20 @@ export function Dashboard({
               <div className="tsks">
                 {overdue.map((t) => {
                   const late = daysBetween(t.scheduled_date, today);
+                  const sedangJalan = t.status === 'in_progress';
                   return (
                     <TaskRow
                       key={t.id}
                       task={t}
-                      variant="crit"
+                      // Sedang dikerjakan tidak sama dengan diabaikan — beri
+                      // warna kuning, bukan merah yang sama dengan yang belum
+                      // tersentuh sama sekali.
+                      variant={sedangJalan ? 'warn' : 'crit'}
+                      note={
+                        sedangJalan
+                          ? 'Sedang dikerjakan — lanjutkan sampai selesai.'
+                          : undefined
+                      }
                       blocks={blocksCount(t, tasks)}
                       onToggle={onToggle}
                       onOpen={onOpen}

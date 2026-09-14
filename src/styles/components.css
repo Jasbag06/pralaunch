@@ -358,6 +358,25 @@
   font-weight: 500;
 }
 
+/* Telat, tapi sedang dikerjakan — jangan disamakan dengan yang belum
+   tersentuh sama sekali. Latar sendiri (bukan alert-soft dari .overdue)
+   supaya benar-benar lepas dari merah, bukan cuma teksnya. */
+.tsk--warn {
+  border-left-color: var(--out);
+  background: var(--out-soft);
+}
+.tsk--warn .tsk__t {
+  font-weight: 500;
+  color: var(--ink-strong);
+}
+.tsk--warn .tsk__r {
+  color: var(--out);
+  font-weight: 500;
+}
+.tsk--warn:hover {
+  background: var(--out-soft);
+}
+
 .tsk--done {
   opacity: 0.55;
 }
