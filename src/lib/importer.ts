@@ -34,6 +34,7 @@ export interface ImportRow {
   depends_on: string[];
   estimated_minutes: number | null;
   notes: string | null;
+  continued_from_key: string | null;
   sort_order: number;
 }
 
@@ -236,6 +237,15 @@ function validateOne(
     ok = false;
   }
 
+  const continuedFrom = o.continued_from_key ?? null;
+  if (continuedFrom !== null && (typeof continuedFrom !== 'string' || !KEY_RE.test(continuedFrom))) {
+    err(`\`continued_from_key\` wajib slug key atau null. Dapat: ${JSON.stringify(continuedFrom)}`);
+    ok = false;
+  } else if (typeof key === 'string' && continuedFrom === key) {
+    err('`continued_from_key` menunjuk ke dirinya sendiri.');
+    ok = false;
+  }
+
   const sort = o.sort_order ?? index;
   if (typeof sort !== 'number' || !Number.isInteger(sort)) {
     err(`\`sort_order\` wajib bilangan bulat. Dapat: ${JSON.stringify(o.sort_order)}`);
@@ -258,7 +268,7 @@ function validateOne(
   const dikenal = new Set([
     'key', 'title', 'description', 'scheduled_date', 'week_number', 'workstream',
     'priority', 'is_deadline', 'status', 'depends_on', 'estimated_minutes',
-    'notes', 'sort_order',
+    'notes', 'sort_order', 'continued_from_key',
     // field turunan yang wajar ikut terbawa dari hasil Ekspor
     'id', 'owner_id', 'completed_at', 'created_at', 'updated_at', 'milestone_id',
     'result_hidden_at',
@@ -284,6 +294,7 @@ function validateOne(
     depends_on: deps as string[],
     estimated_minutes: est as number | null,
     notes: notes as string | null,
+    continued_from_key: continuedFrom as string | null,
     sort_order: sort as number,
   };
 }
@@ -547,6 +558,7 @@ export function toExport(tasks: Task[]): ImportRow[] {
       depends_on: t.depends_on,
       estimated_minutes: t.estimated_minutes,
       notes: t.notes,
+      continued_from_key: t.continued_from_key,
       sort_order: t.sort_order,
     }));
 }

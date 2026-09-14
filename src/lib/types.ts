@@ -40,6 +40,10 @@ export interface Task {
   depends_on: string[];
   estimated_minutes: number | null;
   notes: string | null;
+  /** Key task asal kalau ini lahir sebagai kelanjutan darinya. Bukan
+   *  dependency — task ini tidak menunggu task asalnya, yang justru sudah
+   *  selesai. Murni jejak alur: "task ini dari mana". */
+  continued_from_key: string | null;
   sort_order: number;
   /** Disembunyikan dari blok "Hasil tersimpan" di Dasbor. Task-nya sendiri
    *  tetap utuh — masih di riwayat, Timeline, dan hitungan progres. */

@@ -43,6 +43,7 @@ Supabase Dashboard → **SQL Editor** → tempel dan jalankan berurutan:
 3. [`0003_attachments.sql`](supabase/migrations/0003_attachments.sql) — lampiran + bucket Storage
 4. [`0004_attachment_path.sql`](supabase/migrations/0004_attachment_path.sql) — jenis lampiran `path`
 5. [`0005_result_hidden.sql`](supabase/migrations/0005_result_hidden.sql) — sembunyikan hasil dari Dasbor
+6. [`0006_task_continuation.sql`](supabase/migrations/0006_task_continuation.sql) — alur lanjutan task
 
 
 ### 3. Buat user
@@ -168,6 +169,7 @@ supabase/migrations/
   0003_attachments.sql  lampiran + bucket Storage privat
   0004_attachment_path.sql  jenis lampiran 'path' (catatan lokasi)
   0005_result_hidden.sql    kolom result_hidden_at
+  0006_task_continuation.sql  kolom continued_from_key
 mockup/
   dashboard.html   mockup statis yang di-approve, acuan Dashboard
 ```

@@ -73,6 +73,7 @@ export type TaskPatch = Partial<
     | 'notes'
     | 'sort_order'
     | 'result_hidden_at'
+    | 'continued_from_key'
   >
 >;
 

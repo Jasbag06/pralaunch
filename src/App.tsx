@@ -50,9 +50,12 @@ function DevPreview({ view }: { view: PreviewView }) {
     settings: AppSettings;
     today: string;
   } | null>(null);
-  const [sheet, setSheet] = useState<{ task: Task | null; date?: string; week?: number } | null>(
-    null,
-  );
+  const [sheet, setSheet] = useState<{
+    task: Task | null;
+    date?: string;
+    week?: number;
+    continuationOf?: Task;
+  } | null>(null);
   const [atts, setAtts] = useState<Map<string, Attachment[]>>(new Map());
 
   useEffect(() => {
@@ -176,6 +179,7 @@ function DevPreview({ view }: { view: PreviewView }) {
           today={today}
           defaultDate={sheet.date}
           defaultWeek={sheet.week}
+          continuationOf={sheet.continuationOf}
           onClose={() => setSheet(null)}
           onSave={async (id, patch) => {
             setTasks(tasks.map((x) => (x.id === id ? { ...x, ...patch } : x)));
@@ -197,9 +201,16 @@ function DevPreview({ view }: { view: PreviewView }) {
               tasks
                 .filter((x) => x.id !== t.id)
                 // meniru trigger prune_depends_on di database
-                .map((x) => ({ ...x, depends_on: x.depends_on.filter((k) => k !== t.key) })),
+                .map((x) => ({
+                  ...x,
+                  depends_on: x.depends_on.filter((k) => k !== t.key),
+                  continued_from_key:
+                    x.continued_from_key === t.key ? null : x.continued_from_key,
+                })),
             );
           }}
+          onJumpTo={(t) => setSheet({ task: t })}
+          onCreateContinuation={(fromTask) => setSheet({ task: null, continuationOf: fromTask })}
           attachments={sheet.task ? (atts.get(sheet.task.id) ?? []) : []}
           onUpload={async () => {
             throw new Error('Upload tidak aktif di pratinjau — butuh login.');
@@ -405,7 +416,14 @@ export function App() {
     task: Task | null;
     date?: string;
     week?: number;
+    continuationOf?: Task;
   } | null>(null);
+
+  const onJumpTo = useCallback((t: Task) => setSheet({ task: t }), []);
+  const onCreateContinuation = useCallback(
+    (fromTask: Task) => setSheet({ task: null, continuationOf: fromTask }),
+    [],
+  );
 
   const refetch = useCallback(async () => {
     const [all, att] = await Promise.all([fetchAll(), fetchAttachments()]);
@@ -632,6 +650,7 @@ export function App() {
           today={today}
           defaultDate={sheet.date}
           defaultWeek={sheet.week}
+          continuationOf={sheet.continuationOf}
           onClose={() => setSheet(null)}
           onSave={onSave}
           onCreate={onCreate}
@@ -642,6 +661,8 @@ export function App() {
           onAddPath={onAddPath}
           onRemoveAttachment={onRemoveAttachment}
           onOpenAttachment={openAttachment}
+          onJumpTo={onJumpTo}
+          onCreateContinuation={onCreateContinuation}
         />
       )}
     </Shell>

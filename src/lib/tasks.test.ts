@@ -44,6 +44,7 @@ function task(over: Partial<Task> & { key: string }): Task {
     estimated_minutes: null,
     notes: null,
     result_hidden_at: null,
+    continued_from_key: null,
     sort_order: 0,
     created_at: '',
     updated_at: '',

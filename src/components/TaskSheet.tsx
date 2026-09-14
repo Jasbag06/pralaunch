@@ -28,6 +28,10 @@ interface Props {
   /** Tanggal awal untuk task baru — biasanya hari yang diklik di Timeline. */
   defaultDate?: IsoDate;
   defaultWeek?: number;
+  /** Task asal kalau sheet ini dibuka lewat "Buat task lanjutan". Cuma
+   *  relevan saat isNew — dipakai untuk prefill workstream/minggu dan
+   *  ditulis sebagai continued_from_key saat disimpan. */
+  continuationOf?: Task;
   onClose: () => void;
   onSave: (id: string, patch: TaskPatch) => Promise<void>;
   onCreate: (input: NewTask) => Promise<void>;
@@ -38,6 +42,12 @@ interface Props {
   onAddPath: (taskId: string, path: string, label: string) => Promise<void>;
   onRemoveAttachment: (a: Attachment) => Promise<void>;
   onOpenAttachment: (a: Attachment) => void;
+  /** Pindah panel detail ke task lain — dipakai link "Lanjutan dari" dan
+   *  daftar "Dilanjutkan oleh" supaya alurnya bisa ditelusuri tanpa menutup
+   *  dulu panel yang sedang terbuka. */
+  onJumpTo: (task: Task) => void;
+  /** Buka sheet "task baru" dengan continuationOf terisi. */
+  onCreateContinuation: (fromTask: Task) => void;
 }
 
 export function TaskSheet({
@@ -46,6 +56,7 @@ export function TaskSheet({
   today,
   defaultDate,
   defaultWeek,
+  continuationOf,
   onClose,
   onSave,
   onCreate,
@@ -56,14 +67,18 @@ export function TaskSheet({
   onAddPath,
   onRemoveAttachment,
   onOpenAttachment,
+  onJumpTo,
+  onCreateContinuation,
 }: Props) {
   const isNew = task === null;
 
   const [title, setTitle] = useState(task?.title ?? '');
   const [status, setStatus] = useState<TaskStatus>(task?.status ?? 'todo');
   const [date, setDate] = useState<IsoDate>(task?.scheduled_date ?? defaultDate ?? today);
-  const [week, setWeek] = useState(task?.week_number ?? defaultWeek ?? 1);
-  const [workstream, setWorkstream] = useState<Workstream>(task?.workstream ?? 'Legal');
+  const [week, setWeek] = useState(task?.week_number ?? continuationOf?.week_number ?? defaultWeek ?? 1);
+  const [workstream, setWorkstream] = useState<Workstream>(
+    task?.workstream ?? continuationOf?.workstream ?? 'Legal',
+  );
   const [priority, setPriority] = useState<Priority>(task?.priority ?? 'normal');
   const [minutes, setMinutes] = useState(
     task?.estimated_minutes != null ? String(task.estimated_minutes) : '',
@@ -91,6 +106,22 @@ export function TaskSheet({
 
   const menunggu = useMemo(
     () => (task ? blockers(task, byKey(allTasks)) : []),
+    [task, allTasks],
+  );
+
+  // Alur lanjutan: dari mana task ini lahir, dan apa yang lahir darinya.
+  // Key gantung (task asal sudah dihapus) diperlakukan sebagai "tidak ada",
+  // sama seperti dependensi gantung — trigger di database yang biasanya
+  // mencegah ini, tapi diam-diam melindungi diri di sini juga.
+  const asalDari = useMemo(
+    () =>
+      task?.continued_from_key
+        ? (allTasks.find((t) => t.key === task.continued_from_key) ?? null)
+        : null,
+    [task, allTasks],
+  );
+  const lanjutanDarinya = useMemo(
+    () => (task ? allTasks.filter((t) => t.continued_from_key === task.key) : []),
     [task, allTasks],
   );
 
@@ -126,6 +157,7 @@ export function TaskSheet({
         await onCreate({
           ...common,
           key: slugKey(common.title, week, allTasks.map((t) => t.key)),
+          continued_from_key: continuationOf?.key ?? null,
         });
       } else {
         await onSave(task.id, common);
@@ -170,6 +202,15 @@ export function TaskSheet({
         </div>
 
         <div className="sheet__body">
+          {continuationOf && (
+            <div className="callout callout--info">
+              <span className="ic">↳</span>
+              <span>
+                Lanjutan dari <b>{continuationOf.title}</b>
+              </span>
+            </div>
+          )}
+
           <label className="field">
             <span className="field__k">Judul</span>
             <input ref={titleRef} value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -311,9 +352,54 @@ export function TaskSheet({
             </p>
           )}
 
+          {asalDari && (
+            <p className="deps">
+              ↳ Lanjutan dari{' '}
+              <button type="button" className="lineage-link" onClick={() => onJumpTo(asalDari)}>
+                {asalDari.title}
+              </button>
+            </p>
+          )}
+
+          {lanjutanDarinya.length > 0 && (
+            <div className="deps">
+              ↳ Dilanjutkan oleh:
+              <div className="lineage-list">
+                {lanjutanDarinya.map((c) => (
+                  <button
+                    key={c.key}
+                    type="button"
+                    className="lineage-link"
+                    onClick={() => onJumpTo(c)}
+                  >
+                    {c.title}
+                    {c.status === 'done' && ' ✓'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {!isNew && (
             <p className="deps">
               Key <b>{task.key}</b>
+            </p>
+          )}
+
+          {!isNew && task.status === 'done' && (
+            <button
+              type="button"
+              className="btn btn--ghost"
+              style={{ marginTop: 4 }}
+              onClick={() => onCreateContinuation(task)}
+            >
+              + Buat task lanjutan
+            </button>
+          )}
+          {!isNew && task.status === 'done' && (
+            <p className="attnote" style={{ marginTop: 6 }}>
+              Kalau task ini kelar "kecuali satu hal", pisahkan sisanya jadi task baru —
+              tetap tertaut ke sini supaya alurnya tidak hilang.
             </p>
           )}
 

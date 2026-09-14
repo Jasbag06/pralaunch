@@ -23,6 +23,7 @@ function task(over: Partial<Task> & { key: string }): Task {
     estimated_minutes: null,
     notes: null,
     result_hidden_at: null,
+    continued_from_key: null,
     sort_order: 0,
     created_at: '',
     updated_at: '',
@@ -315,5 +316,40 @@ describe('parseImport — bentuk objek dengan milestone', () => {
     const p = planImport(r.rows, [], 'replace_week', r.milestones);
     expect(p.milestones.map((m) => m.key)).toEqual(['nib-terbit']);
     expect(p.deleteKeys).toEqual([]);
+  });
+});
+
+describe('continued_from_key', () => {
+  it('opsional — tidak diisi berarti null', () => {
+    const r = parseImport(JSON.stringify([sah()]));
+    expect(r.rows[0].continued_from_key).toBeNull();
+  });
+
+  it('slug yang sah diterima', () => {
+    const r = parseImport(JSON.stringify([sah({ continued_from_key: 'w1-supplier-lama' })]));
+    expect(r.fatal).toBe(false);
+    expect(r.rows[0].continued_from_key).toBe('w1-supplier-lama');
+  });
+
+  it('menunjuk ke dirinya sendiri ditolak', () => {
+    const r = parseImport(JSON.stringify([sah({ continued_from_key: 'w2-contoh' })]));
+    expect(r.fatal).toBe(true);
+    expect(r.issues.some((x) => x.message.includes('dirinya sendiri'))).toBe(true);
+  });
+
+  it('format yang bukan slug ditolak', () => {
+    const r = parseImport(JSON.stringify([sah({ continued_from_key: 'Bukan Slug!' })]));
+    expect(r.fatal).toBe(true);
+    expect(r.issues.some((x) => x.message.includes('continued_from_key'))).toBe(true);
+  });
+
+  it('ikut Ekspor dan bisa diimpor ulang tanpa peringatan', () => {
+    const t = task({ key: 'w2-lanjutan', continued_from_key: 'w1-asal' });
+    const json = exportJson([t]);
+    expect(json).toContain('"continued_from_key": "w1-asal"');
+
+    const r = parseImport(json);
+    expect(r.issues).toHaveLength(0);
+    expect(r.rows[0].continued_from_key).toBe('w1-asal');
   });
 });
