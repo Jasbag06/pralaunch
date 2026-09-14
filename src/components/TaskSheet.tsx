@@ -125,22 +125,20 @@ export function TaskSheet({
     [task, allTasks],
   );
 
-  async function submit() {
+  /** Rakit payload dari field yang sedang diedit, dengan validasi. Dipakai
+   *  submit() dan handleCreateContinuation() — keduanya butuh keadaan
+   *  sheet SAAT INI disimpan, bukan cuma submit biasa. */
+  function buildCommon(): TaskPatch | null {
     if (!title.trim()) {
       setError('Judul tidak boleh kosong.');
-      return;
+      return null;
     }
-    setBusy(true);
-    setError(null);
-
     const est = minutes.trim() === '' ? null : Number(minutes);
     if (est != null && (!Number.isFinite(est) || est <= 0)) {
       setError('Estimasi harus angka menit lebih dari 0.');
-      setBusy(false);
-      return;
+      return null;
     }
-
-    const common = {
+    return {
       title: title.trim(),
       scheduled_date: date,
       week_number: week,
@@ -151,18 +149,53 @@ export function TaskSheet({
       estimated_minutes: est,
       notes: notes.trim() === '' ? null : notes.trim(),
     };
+  }
+
+  async function submit() {
+    setBusy(true);
+    setError(null);
+    const common = buildCommon();
+    if (!common) {
+      setBusy(false);
+      return;
+    }
 
     try {
       if (isNew) {
         await onCreate({
           ...common,
-          key: slugKey(common.title, week, allTasks.map((t) => t.key)),
+          key: slugKey(common.title!, week, allTasks.map((t) => t.key)),
           continued_from_key: continuationOf?.key ?? null,
-        });
+        } as NewTask);
       } else {
         await onSave(task.id, common);
       }
       onClose();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
+      setBusy(false);
+    }
+  }
+
+  /**
+   * Klik "Buat task lanjutan" dari task yang BELUM disimpan sebagai selesai
+   * (kamu baru saja klik segmented "Selesai" di sheet yang sama) harus
+   * menyimpan dulu, baru pindah — kalau tidak, status baru dan catatan yang
+   * baru diketik hilang begitu panel berganti ke sheet lanjutan.
+   */
+  async function handleCreateContinuation() {
+    if (!task) return;
+    setBusy(true);
+    setError(null);
+    const common = buildCommon();
+    if (!common) {
+      setBusy(false);
+      return;
+    }
+
+    try {
+      await onSave(task.id, common);
+      onCreateContinuation({ ...task, ...common } as Task);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
       setBusy(false);
@@ -386,17 +419,23 @@ export function TaskSheet({
             </p>
           )}
 
-          {!isNew && task.status === 'done' && (
+          {/* Dipicu oleh status yang SEDANG diedit, bukan task.status yang
+              tersimpan — begitu kamu klik "Selesai" di atas, tombol ini
+              langsung muncul di sheet yang sama, sebelum sempat menekan
+              Simpan. Klik tombolnya menyimpan perubahan itu dulu, baru
+              membuka sheet lanjutan. */}
+          {!isNew && status === 'done' && (
             <button
               type="button"
               className="btn btn--ghost"
               style={{ marginTop: 4 }}
-              onClick={() => onCreateContinuation(task)}
+              disabled={busy}
+              onClick={handleCreateContinuation}
             >
               + Buat task lanjutan
             </button>
           )}
-          {!isNew && task.status === 'done' && (
+          {!isNew && status === 'done' && (
             <p className="attnote" style={{ marginTop: 6 }}>
               Kalau task ini kelar "kecuali satu hal", pisahkan sisanya jadi task baru —
               tetap tertaut ke sini supaya alurnya tidak hilang.
